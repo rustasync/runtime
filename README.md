@@ -14,8 +14,8 @@
     alt="Crates.io version" />
   </a>
   <!-- Build Status -->
-  <a href="https://dev.azure.com/rustasync/public/_build?definitionId=1">
-    <img src="https://img.shields.io/azure-devops/build/rustasync/public/1/master.svg?style=flat-square"
+  <a href="https://dev.azure.com/yoshuawuyts/public/_build?definitionId=1">
+    <img src="https://img.shields.io/azure-devops/build/yoshuawuyts/public/1/master.svg?style=flat-square"
       alt="Build Status" />
   </a>
   <!-- Downloads -->
