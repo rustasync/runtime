@@ -1,7 +1,7 @@
 [package]
 name = "runtime"
 description = "Empowering everyone to build asynchronous software."
-version = "0.0.0"
+version = "0.3.0-alpha.1"
 license = "MIT OR Apache-2.0"
 authors = ["The Rust Async Ecosystem Working Group"]
 keywords = ["async", "runtime", "generic", "tokio", "romio"]

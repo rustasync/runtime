@@ -1,7 +1,7 @@
 [package]
 name = "runtime-attributes"
 description = "Proc Macro attributes for the Runtime crate."
-version = "0.1.0"
+version = "0.3.0-alpha.1"
 authors = ["The Rust Async Ecosystem Working Group"]
 keywords = ["async", "runtime", "generic", "macro", "proc-macro"]
 categories = ["asynchronous", "network-programming", "filesystem", "concurrency", "api-bindings"]
