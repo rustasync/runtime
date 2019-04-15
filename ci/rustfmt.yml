@@ -1,0 +1,15 @@
+jobs:
+- job: rustfmt
+  displayName: ${{ parameters.displayName }}
+  pool:
+    vmImage: ubuntu-16.04
+  steps:
+    - template: install-rust.yml
+      parameters:
+        rust_version: nightly
+    - script: |
+        rustup component add rustfmt
+      displayName: Install rustfmt
+    - script: |
+        cargo fmt --all -- --check --unstable-features
+      displayName: Check formatting

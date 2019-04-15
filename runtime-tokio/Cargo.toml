@@ -1,0 +1,16 @@
+[package]
+name = "runtime-tokio"
+description = "A Tokio-based asynchronous runtime"
+version = "0.1.0"
+authors = ["The Rust Async Ecosystem Working Group"]
+keywords = ["async", "runtime", "generic", "tokio", "0.3"]
+categories = ["asynchronous", "network-programming", "filesystem", "concurrency", "api-bindings"]
+edition = "2018"
+
+[dependencies]
+futures-preview = { version = "0.3.0-alpha.13", features = ["compat", "io-compat"] }
+futures01 = { package = "futures", version = "0.1" }
+lazy_static = "1.0.0"
+mio = "0.6.16"
+runtime-raw = { path = "../runtime-raw" }
+tokio = { version = "0.1", features = ["async-await-preview"] }

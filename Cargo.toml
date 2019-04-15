@@ -1,0 +1,37 @@
+[package]
+name = "runtime"
+description = "Empowering everyone to build asynchronous software."
+version = "0.0.0"
+license = "MIT OR Apache-2.0"
+authors = ["The Rust Async Ecosystem Working Group"]
+keywords = ["async", "runtime", "generic", "tokio", "romio"]
+categories = ["asynchronous", "network-programming", "filesystem", "concurrency", "api-bindings"]
+edition = "2018"
+
+[dependencies]
+futures-preview = { version = "0.3.0-alpha.13", features = ["compat", "io-compat"] }
+runtime-attributes = { path = "runtime-attributes" }
+runtime-raw = { path = "runtime-raw" }
+
+[dev-dependencies]
+failure = "0.1.5"
+futures01 = { package = "futures", version = "0.1" }
+juliex = "0.3.0-alpha.2"
+mio = "0.6.16"
+rand = "0.6.5"
+runtime-native = { path = "runtime-native" }
+runtime-tokio = { path = "runtime-tokio" }
+tokio = "0.1.18"
+
+[profile.bench]
+codegen-units = 1
+incremental = false
+
+[workspace]
+members = [
+  ".",
+  "runtime-attributes",
+  "runtime-native",
+  "runtime-raw",
+  "runtime-tokio",
+]

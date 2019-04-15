@@ -1,0 +1,22 @@
+[package]
+name = "runtime-attributes"
+description = "Proc Macro attributes for the Runtime crate."
+version = "0.1.0"
+authors = ["The Rust Async Ecosystem Working Group"]
+keywords = ["async", "runtime", "generic", "macro", "proc-macro"]
+categories = ["asynchronous", "network-programming", "filesystem", "concurrency", "api-bindings"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+lazy_static = "1"
+syn = { version = "0.15", features = ["full"] }
+proc-macro2 = { version = "0.4.24", features = ["nightly"] }
+quote = "0.6"
+
+[dev-dependencies]
+failure = "0.1.5"
+runtime-raw = { path = "../runtime-raw" }
+runtime-tokio = { path = "../runtime-tokio" }
