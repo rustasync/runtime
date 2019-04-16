@@ -185,6 +185,16 @@ codebase is small and comprehensive, and the algorithms simple yet performant.
 Specific runtimes might introduce different trade-offs, and with Runtime you're able to compare, and
 pick the best fit for your requirements.
 
+### Can Runtime be used on embedded devices?
+Runtime is designed to be compatible with micro processors, but not with micro controllers. Out of
+the box Runtime works on embedded devices such as Raspberry Pis, and with the appropriate backends
+it should also work on phones.
+
+Micro controllers are very specific in what they provide, and while a Runtime-like library might be
+possible in the future, it's still early for the ecosystem and APIs would likely also need to be
+different. We don't know what the future holds, but for now we've chosen not to target micro
+controllers.
+
 ### When will Timers and File System support land?
 Timers are next up on the list of things we want to target, together with Unix Domain Sockets.
 Filesystem is a bit further behind because currently the implementations in the backing runtimes are
