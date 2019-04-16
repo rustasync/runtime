@@ -3,9 +3,14 @@ name = "runtime"
 description = "Empowering everyone to build asynchronous software."
 version = "0.3.0-alpha.1"
 license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/rustasync/runtime"
+homepage = "https://github.com/rustasync/runtime"
+documentation = "https://docs.rs/runtime"
 authors = ["The Rust Async Ecosystem Working Group"]
 keywords = ["async", "runtime", "generic", "tokio", "romio"]
 categories = ["asynchronous", "network-programming", "filesystem", "concurrency", "api-bindings"]
+readme = "README.md"
 edition = "2018"
 
 [dependencies]

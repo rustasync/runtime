@@ -2,6 +2,11 @@
 name = "runtime-native"
 description = "A cross-platform asynchronous runtime"
 version = "0.3.0-alpha.1"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/rustasync/runtime"
+homepage = "https://github.com/rustasync/runtime"
+documentation = "https://docs.rs/runtime-native"
 authors = ["The Rust Async Ecosystem Working Group"]
 keywords = ["async", "runtime", "generic", "romio", "juliex"]
 categories = ["asynchronous", "network-programming", "filesystem", "concurrency", "api-bindings"]
