@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["spawn","Spawn a task on the threadpool."]],"struct":[["ThreadPool","A threadpool that futures can be spawned on."]]});

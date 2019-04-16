@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Accept","The future returned by [`TcpStream::accept`]."],["Connect","The future returned by [`TcpStream::connect`]."],["Incoming","A stream that infinitely [`accept`]s connections on a [`TcpListener`]."],["TcpListener","A TCP socket server, listening for connections."],["TcpStream","A TCP stream between a local and a remote socket."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["raw","Raw poll APIs"],["tcp","Async TCP bindings."],["udp","Async UDP bindings."],["uds","Async UDS (Unix Domain Sockets) bindings."]],"struct":[["TcpListener","A TCP socket server, listening for connections."],["TcpStream","A TCP stream between a local and a remote socket."],["UdpSocket","A UDP socket."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["current_runtime","Get the current runtime."],["enter","Runs a future inside a runtime and blocks on the result."],["set_runtime","Set the current runtime."]],"trait":[["Runtime","The runtime trait."],["TcpListener","A TcpListener for this Runtime"],["TcpStream","A TcpStream for this Runtime"],["UdpSocket","A UDP socket."]]});

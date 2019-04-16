@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["spawn","Spawn a future on the runtime's thread pool."]],"mod":[["net","Networking primitives for asynchronous TCP/UDP communication."],["task","Types and Functions for working with asynchronous tasks."]]});
