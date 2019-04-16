@@ -16,7 +16,8 @@ $ cargo add runtime-tokio
 ```
 
 ## Safety
-This crate uses `#![deny(unsafe_code)]` to ensure everything is implemented in 100% Safe Rust.
+This crate uses `unsafe` in a few places to construct pin projections not natively supported by
+Tokio.
 
 ## Contributing
 Want to join us? Check out our [The "Contributing" section of the

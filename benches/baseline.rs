@@ -34,7 +34,7 @@ mod baseline {
                         if self.depth == 300 {
                             Poll::Ready(())
                         } else {
-                            w.wake();
+                            cx.waker().wake_by_ref();
                             Poll::Pending
                         }
                     }
