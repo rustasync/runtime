@@ -381,7 +381,7 @@ impl<'socket, 'buf> Future for SendTo<'socket, 'buf> {
                 return Poll::Ready(Err(err));
             }
         };
-        let poll = socket.inner.poll_send_to(cx, buf, &addr);
+        let poll = socket.inner.as_mut().poll_send_to(cx, buf, &addr);
         self.addr = Some(Ok(addr));
         poll
     }
@@ -403,7 +403,7 @@ impl<'socket, 'buf> Future for RecvFrom<'socket, 'buf> {
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let RecvFrom { socket, buf } = &mut *self;
-        socket.inner.poll_recv_from(cx, buf)
+        socket.inner.as_mut().poll_recv_from(cx, buf)
     }
 }
 

@@ -9,10 +9,10 @@ use std::pin::Pin;
 /// A TcpStream for this Runtime
 pub trait TcpStream: AsyncRead + AsyncWrite + Debug + Send {
     /// Check if the stream can be written to.
-    fn poll_write_ready(&self, cx: &mut Context<'_>) -> Poll<io::Result<()>>;
+    fn poll_write_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>>;
 
     /// Check if the stream can be read from.
-    fn poll_read_ready(&self, cx: &mut Context<'_>) -> Poll<io::Result<()>>;
+    fn poll_read_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>>;
 
     /// Check if any socket errors exist on the `TcpStream`.
     ///
@@ -40,7 +40,7 @@ pub trait TcpListener: Debug + Send {
     fn local_addr(&self) -> io::Result<SocketAddr>;
 
     /// Check if the listener is ready to accept connections.
-    fn poll_accept(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<Pin<Box<dyn TcpStream>>>>;
+    fn poll_accept(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<Pin<Box<dyn TcpStream>>>>;
 
     /// Extracts the raw file descriptor.
     #[cfg(unix)]

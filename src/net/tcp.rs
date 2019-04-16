@@ -168,45 +168,45 @@ impl TcpStream {
 
 impl AsyncRead for TcpStream {
     fn poll_read(
-        self: Pin<&mut Self>,
+        mut self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<usize>> {
-        self.inner.poll_read(cx, buf)
+        self.inner.as_mut().poll_read(cx, buf)
     }
 
     fn poll_vectored_read(
-        self: Pin<&mut Self>,
+        mut self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         vec: &mut [&mut IoVec],
     ) -> Poll<io::Result<usize>> {
-        self.inner.poll_vectored_read(cx, vec)
+        self.inner.as_mut().poll_vectored_read(cx, vec)
     }
 }
 
 impl AsyncWrite for TcpStream {
     fn poll_write(
-        self: Pin<&mut Self>,
+        mut self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
-        self.inner.poll_write(cx, buf)
+        self.inner.as_mut().poll_write(cx, buf)
     }
 
-    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        self.inner.poll_flush(cx)
+    fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        self.inner.as_mut().poll_flush(cx)
     }
 
-    fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        self.inner.poll_close(cx)
+    fn poll_close(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        self.inner.as_mut().poll_close(cx)
     }
 
     fn poll_vectored_write(
-        self: Pin<&mut Self>,
+        mut self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         vec: &[&IoVec],
     ) -> Poll<io::Result<usize>> {
-        self.inner.poll_vectored_write(cx, vec)
+        self.inner.as_mut().poll_vectored_write(cx, vec)
     }
 }
 
@@ -488,7 +488,7 @@ impl<'listener> Stream for Incoming<'listener> {
     type Item = io::Result<TcpStream>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let inner = ready!(self.inner.inner.poll_accept(cx)?);
+        let inner = ready!(self.inner.inner.as_mut().poll_accept(cx)?);
         Poll::Ready(Some(Ok(TcpStream { inner })))
     }
 }
