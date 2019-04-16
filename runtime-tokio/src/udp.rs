@@ -2,7 +2,7 @@ use futures01;
 
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::task::{Poll, Waker};
+use std::task::{Context, Poll};
 
 #[derive(Debug)]
 pub(crate) struct UdpSocket {
@@ -16,7 +16,7 @@ impl runtime_raw::UdpSocket for UdpSocket {
 
     fn poll_send_to(
         &mut self,
-        _waker: &Waker,
+        _cx: &mut Context<'_>,
         buf: &[u8],
         receiver: &SocketAddr,
     ) -> Poll<io::Result<usize>> {
@@ -29,7 +29,7 @@ impl runtime_raw::UdpSocket for UdpSocket {
 
     fn poll_recv_from(
         &mut self,
-        _waker: &Waker,
+        _cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<(usize, SocketAddr)>> {
         match self.tokio_socket.poll_recv_from(buf) {

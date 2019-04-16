@@ -54,8 +54,8 @@ pub struct JoinHandle<T> {
 impl<T> Future for JoinHandle<T> {
     type Output = T;
 
-    fn poll(mut self: Pin<&mut Self>, waker: &Waker) -> Poll<Self::Output> {
-        match self.rx.poll_unpin(waker) {
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        match self.rx.poll_unpin(cx) {
             Poll::Pending => Poll::Pending,
             Poll::Ready(Ok(t)) => Poll::Ready(t),
             Poll::Ready(Err(_)) => panic!(), // TODO: Is this OK? Print a better error message?

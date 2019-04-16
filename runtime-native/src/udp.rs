@@ -2,7 +2,7 @@ use async_datagram::AsyncDatagram;
 
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::task::{Poll, Waker};
+use std::task::{Context, Poll};
 
 #[derive(Debug)]
 pub(crate) struct UdpSocket {
@@ -16,19 +16,19 @@ impl runtime_raw::UdpSocket for UdpSocket {
 
     fn poll_send_to(
         &mut self,
-        waker: &Waker,
+        cx: &mut Context<'_>,
         buf: &[u8],
         receiver: &SocketAddr,
     ) -> Poll<io::Result<usize>> {
-        self.romio_socket.poll_send_to(waker, buf, receiver)
+        self.romio_socket.poll_send_to(cx, buf, receiver)
     }
 
     fn poll_recv_from(
         &mut self,
-        waker: &Waker,
+        cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<(usize, SocketAddr)>> {
-        self.romio_socket.poll_recv_from(waker, buf)
+        self.romio_socket.poll_recv_from(cx, buf)
     }
 
     /// Gets the value of the `SO_BROADCAST` option for this socket.

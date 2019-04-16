@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::task::{Poll, Waker};
+use std::task::{Context, Poll};
 
 /// A UDP socket.
 pub trait UdpSocket: Debug + Send {
@@ -16,7 +16,7 @@ pub trait UdpSocket: Debug + Send {
     /// On success, returns the number of bytes written.
     fn poll_send_to(
         &mut self,
-        waker: &Waker,
+        cx: &mut Context<'_>,
         buf: &[u8],
         receiver: &SocketAddr,
     ) -> Poll<io::Result<usize>>;
@@ -27,7 +27,7 @@ pub trait UdpSocket: Debug + Send {
     /// the data came.
     fn poll_recv_from(
         &mut self,
-        waker: &Waker,
+        cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<(usize, SocketAddr)>>;
 

@@ -5,7 +5,7 @@ use futures01;
 
 use std::io;
 use std::net::SocketAddr;
-use std::task::{Poll, Waker};
+use std::task::{Context, Poll};
 
 #[derive(Debug)]
 pub(crate) struct TcpStream {
@@ -18,7 +18,7 @@ pub(crate) struct TcpListener {
 }
 
 impl runtime_raw::TcpStream for TcpStream {
-    fn poll_write_ready(&self, _waker: &Waker) -> Poll<io::Result<()>> {
+    fn poll_write_ready(&self, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         match self.tokio_stream.poll_write_ready() {
             Err(e) => Poll::Ready(Err(e)),
             Ok(futures01::Async::Ready(_)) => Poll::Ready(Ok(())),
@@ -26,7 +26,7 @@ impl runtime_raw::TcpStream for TcpStream {
         }
     }
 
-    fn poll_read_ready(&self, _waker: &Waker) -> Poll<io::Result<()>> {
+    fn poll_read_ready(&self, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         let mask = mio::Ready::readable();
         match self.tokio_stream.poll_read_ready(mask) {
             Err(e) => Poll::Ready(Err(e)),
@@ -59,26 +59,26 @@ impl runtime_raw::TcpStream for TcpStream {
 }
 
 impl AsyncRead for TcpStream {
-    fn poll_read(&mut self, waker: &Waker, mut buf: &mut [u8]) -> Poll<io::Result<usize>> {
+    fn poll_read(&mut self, cx: &mut Context<'_>, mut buf: &mut [u8]) -> Poll<io::Result<usize>> {
         let mut stream = Compat01As03::new(&self.tokio_stream);
-        stream.poll_read(&waker, &mut buf)
+        stream.poll_read(cx, &mut buf)
     }
 }
 
 impl AsyncWrite for TcpStream {
-    fn poll_write(&mut self, waker: &Waker, buf: &[u8]) -> Poll<io::Result<usize>> {
+    fn poll_write(&mut self, cx: &mut Context<'_>, buf: &[u8]) -> Poll<io::Result<usize>> {
         let mut stream = Compat01As03::new(&self.tokio_stream);
-        stream.poll_write(&waker, &buf)
+        stream.poll_write(cx, &buf)
     }
 
-    fn poll_flush(&mut self, waker: &Waker) -> Poll<io::Result<()>> {
+    fn poll_flush(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         let mut stream = Compat01As03::new(&self.tokio_stream);
-        stream.poll_flush(&waker)
+        stream.poll_flush(cx)
     }
 
-    fn poll_close(&mut self, waker: &Waker) -> Poll<io::Result<()>> {
+    fn poll_close(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         let mut stream = Compat01As03::new(&self.tokio_stream);
-        stream.poll_close(&waker)
+        stream.poll_close(cx)
     }
 }
 
@@ -87,7 +87,7 @@ impl runtime_raw::TcpListener for TcpListener {
         self.tokio_listener.local_addr()
     }
 
-    fn poll_accept(&mut self, _waker: &Waker) -> Poll<io::Result<Box<dyn runtime_raw::TcpStream>>> {
+    fn poll_accept(&mut self, _cx: &mut Context<'_>) -> Poll<io::Result<Box<dyn runtime_raw::TcpStream>>> {
         match self.tokio_listener.poll_accept() {
             Err(e) => Poll::Ready(Err(e)),
             Ok(futures01::Async::Ready((tokio_stream, _))) => {
