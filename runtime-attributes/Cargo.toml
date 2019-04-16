@@ -21,5 +21,5 @@ proc-macro2 = { version = "0.4.24", features = ["nightly"] }
 quote = "0.6"
 
 [dev-dependencies]
-runtime-raw = { path = "../runtime-raw" }
-runtime-tokio = { path = "../runtime-tokio" }
+runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.1" }
+runtime-tokio = { path = "../runtime-tokio", version = "0.3.0-alpha.1" }
