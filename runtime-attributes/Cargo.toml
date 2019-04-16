@@ -11,12 +11,10 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
-lazy_static = "1"
 syn = { version = "0.15", features = ["full"] }
 proc-macro2 = { version = "0.4.24", features = ["nightly"] }
 quote = "0.6"
 
 [dev-dependencies]
-failure = "0.1.5"
 runtime-raw = { path = "../runtime-raw" }
 runtime-tokio = { path = "../runtime-tokio" }
