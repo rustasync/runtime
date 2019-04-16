@@ -24,7 +24,7 @@
       alt="Download" />
   </a>
   <!-- docs.rs docs -->
-  <a href="https://docs.rs/runtime">
+  <a href="https://rustasync.github.io/runtime/runtime/index.html">
     <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square"
       alt="docs.rs docs" />
   </a>
@@ -32,7 +32,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://docs.rs/runtime">
+    <a href="https://rustasync.github.io/runtime/runtime/index.html">
       API Docs
     </a>
     <span> | </span>
@@ -133,9 +133,9 @@ async fn main() {}
 
 The following backing runtimes are available:
 
-- [Runtime Native (default)](https://docs.rs/runtime-native) provides
+- [Runtime Native (default)](https://crates.io/crates/runtime-native) provides
   a thread pool, bindings to the OS, and a concurrent scheduler.
-- [Runtime Tokio](https://docs.rs/runtime-tokio) provides a thread pool, bindings to the OS, and
+- [Runtime Tokio](https://crates.io/crates/runtime-tokio) provides a thread pool, bindings to the OS, and
   a work-stealing scheduler.
 
 ## Performance
