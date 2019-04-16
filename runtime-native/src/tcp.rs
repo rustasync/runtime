@@ -72,11 +72,14 @@ impl runtime_raw::TcpListener for TcpListener {
         self.romio_listener.local_addr()
     }
 
-    fn poll_accept(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<Box<dyn runtime_raw::TcpStream>>> {
+    fn poll_accept(
+        &mut self,
+        cx: &mut Context<'_>,
+    ) -> Poll<io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
         self.romio_listener
             .poll_ready(cx)
             .map_ok(|(romio_stream, _)| {
-                Box::new(TcpStream { romio_stream }) as Box<dyn runtime_raw::TcpStream>
+                Box::pin(TcpStream { romio_stream }) as Box<dyn runtime_raw::TcpStream>
             })
     }
 

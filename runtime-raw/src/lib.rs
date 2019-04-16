@@ -83,17 +83,17 @@ pub trait Runtime: Send + Sync + 'static {
     fn connect_tcp_stream(
         &self,
         addr: &SocketAddr,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Box<dyn TcpStream>>> + Send>>;
+    ) -> Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn TcpStream>>>> + Send>>;
 
     /// Create a new `TcpListener`.
     ///
     /// This method is defined on the `Runtime` trait because defining it on
     /// `TcpListener` would prevent it from being a trait object.
-    fn bind_tcp_listener(&self, addr: &SocketAddr) -> io::Result<Box<dyn TcpListener>>;
+    fn bind_tcp_listener(&self, addr: &SocketAddr) -> io::Result<Pin<Box<dyn TcpListener>>>;
 
     /// Create a new `UdpSocket`.
     ///
     /// This method is defined on the `Runtime` trait because defining it on
     /// `UdpSocket` would prevent it from being a trait object.
-    fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Box<dyn UdpSocket>>;
+    fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Pin<Box<dyn UdpSocket>>>;
 }

@@ -46,11 +46,12 @@ impl runtime_raw::Runtime for Native {
     fn connect_tcp_stream(
         &self,
         addr: &SocketAddr,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Box<dyn runtime_raw::TcpStream>>> + Send>> {
+    ) -> Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream + Send>>>>>>
+    {
         let romio_connect = romio::TcpStream::connect(addr);
         let connect = romio_connect.map(|res| {
             res.map(|romio_stream| {
-                Box::new(TcpStream { romio_stream }) as Box<dyn runtime_raw::TcpStream>
+                Box::pin(TcpStream { romio_stream }) as Box<dyn runtime_raw::TcpStream>
             })
         });
         Box::pin(connect)
@@ -59,12 +60,15 @@ impl runtime_raw::Runtime for Native {
     fn bind_tcp_listener(
         &self,
         addr: &SocketAddr,
-    ) -> io::Result<Box<dyn runtime_raw::TcpListener>> {
+    ) -> io::Result<Pin<Box<dyn runtime_raw::TcpListener>>> {
         let romio_listener = romio::TcpListener::bind(&addr)?;
-        Ok(Box::new(TcpListener { romio_listener }))
+        Ok(Box::pin(TcpListener { romio_listener }))
     }
 
-    fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Box<dyn runtime_raw::UdpSocket>> {
+    fn bind_udp_socket(
+        &self,
+        addr: &SocketAddr,
+    ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let romio_socket = romio::UdpSocket::bind(&addr)?;
         Ok(Box::new(UdpSocket { romio_socket }))
     }

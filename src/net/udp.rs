@@ -56,7 +56,7 @@ use std::task::{Context, Poll};
 /// ```
 #[derive(Debug)]
 pub struct UdpSocket {
-    inner: Box<dyn runtime_raw::UdpSocket>,
+    inner: Pin<Box<dyn runtime_raw::UdpSocket>>,
 }
 
 impl UdpSocket {

@@ -68,7 +68,7 @@ use futures::task::{Context, Poll};
 /// ```
 #[derive(Debug)]
 pub struct TcpStream {
-    inner: Box<dyn runtime_raw::TcpStream>,
+    inner: Pin<Box<dyn runtime_raw::TcpStream>>,
 }
 
 impl TcpStream {
@@ -167,12 +167,16 @@ impl TcpStream {
 }
 
 impl AsyncRead for TcpStream {
-    fn poll_read(&mut self, cx: &mut Context<'_>, buf: &mut [u8]) -> Poll<io::Result<usize>> {
+    fn poll_read(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &mut [u8],
+    ) -> Poll<io::Result<usize>> {
         self.inner.poll_read(cx, buf)
     }
 
     fn poll_vectored_read(
-        &mut self,
+        self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         vec: &mut [&mut IoVec],
     ) -> Poll<io::Result<usize>> {
@@ -181,19 +185,27 @@ impl AsyncRead for TcpStream {
 }
 
 impl AsyncWrite for TcpStream {
-    fn poll_write(&mut self, cx: &mut Context<'_>, buf: &[u8]) -> Poll<io::Result<usize>> {
+    fn poll_write(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &[u8],
+    ) -> Poll<io::Result<usize>> {
         self.inner.poll_write(cx, buf)
     }
 
-    fn poll_flush(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         self.inner.poll_flush(cx)
     }
 
-    fn poll_close(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+    fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         self.inner.poll_close(cx)
     }
 
-    fn poll_vectored_write(&mut self, cx: &mut Context<'_>, vec: &[&IoVec]) -> Poll<io::Result<usize>> {
+    fn poll_vectored_write(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        vec: &[&IoVec],
+    ) -> Poll<io::Result<usize>> {
         self.inner.poll_vectored_write(cx, vec)
     }
 }
@@ -208,7 +220,7 @@ pub struct Connect {
     addrs: Option<io::Result<VecDeque<SocketAddr>>>,
     last_err: Option<io::Error>,
     future:
-        Option<Pin<Box<dyn Future<Output = io::Result<Box<dyn runtime_raw::TcpStream>>> + Send>>>,
+        Option<Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> + Send>>>,
     runtime: &'static dyn runtime_raw::Runtime,
 }
 
@@ -305,7 +317,7 @@ impl fmt::Debug for Connect {
 /// ```
 #[derive(Debug)]
 pub struct TcpListener {
-    inner: Box<dyn runtime_raw::TcpListener>,
+    inner: Pin<Box<dyn runtime_raw::TcpListener>>,
 }
 
 impl TcpListener {

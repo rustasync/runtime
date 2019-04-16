@@ -4,6 +4,7 @@ use futures::task::{Context, Poll};
 use std::fmt::Debug;
 use std::io;
 use std::net::SocketAddr;
+use std::pin::Pin;
 
 /// A TcpStream for this Runtime
 pub trait TcpStream: AsyncRead + AsyncWrite + Debug + Send {
@@ -39,7 +40,7 @@ pub trait TcpListener: Debug + Send {
     fn local_addr(&self) -> io::Result<SocketAddr>;
 
     /// Check if the listener is ready to accept connections.
-    fn poll_accept(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<Box<dyn TcpStream>>>;
+    fn poll_accept(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<Pin<Box<dyn TcpStream>>>>;
 
     /// Extracts the raw file descriptor.
     #[cfg(unix)]
