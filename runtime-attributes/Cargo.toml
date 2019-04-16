@@ -22,4 +22,3 @@ quote = "0.6"
 
 [dev-dependencies]
 runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.1" }
-runtime-tokio = { path = "../runtime-tokio", version = "0.3.0-alpha.1" }
