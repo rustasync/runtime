@@ -10,7 +10,6 @@ documentation = "https://docs.rs/runtime"
 authors = ["The Rust Async Ecosystem Working Group"]
 keywords = ["async", "runtime", "generic", "tokio", "romio"]
 categories = ["asynchronous", "network-programming", "filesystem", "concurrency", "api-bindings"]
-readme = "README.md"
 edition = "2018"
 
 [dependencies]
