@@ -15,7 +15,7 @@ use futures::prelude::*;
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, ToSocketAddrs};
 use std::pin::Pin;
-use std::task::{Poll, Waker};
+use std::task::{Context, Poll};
 
 /// A UDP socket.
 ///
@@ -56,7 +56,7 @@ use std::task::{Poll, Waker};
 /// ```
 #[derive(Debug)]
 pub struct UdpSocket {
-    inner: Box<dyn runtime_raw::UdpSocket>,
+    inner: Pin<Box<dyn runtime_raw::UdpSocket>>,
 }
 
 impl UdpSocket {
@@ -371,7 +371,7 @@ pub struct SendTo<'socket, 'buf> {
 impl<'socket, 'buf> Future for SendTo<'socket, 'buf> {
     type Output = io::Result<usize>;
 
-    fn poll(mut self: Pin<&mut Self>, waker: &Waker) -> Poll<Self::Output> {
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let SendTo { socket, buf, addr } = &mut *self;
         let addr = match addr.take() {
             Some(addr) => addr?,
@@ -381,7 +381,7 @@ impl<'socket, 'buf> Future for SendTo<'socket, 'buf> {
                 return Poll::Ready(Err(err));
             }
         };
-        let poll = socket.inner.poll_send_to(waker, buf, &addr);
+        let poll = socket.inner.as_mut().poll_send_to(cx, buf, &addr);
         self.addr = Some(Ok(addr));
         poll
     }
@@ -401,9 +401,9 @@ pub struct RecvFrom<'socket, 'buf> {
 impl<'socket, 'buf> Future for RecvFrom<'socket, 'buf> {
     type Output = io::Result<(usize, SocketAddr)>;
 
-    fn poll(mut self: Pin<&mut Self>, waker: &Waker) -> Poll<Self::Output> {
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let RecvFrom { socket, buf } = &mut *self;
-        socket.inner.poll_recv_from(waker, buf)
+        socket.inner.as_mut().poll_recv_from(cx, buf)
     }
 }
 

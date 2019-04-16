@@ -6,7 +6,7 @@ macro_rules! benchmark_suite {
         #[runtime::bench($rt)]
         async fn notify_self() {
             use futures::future::Future;
-            use futures::task::{Poll, Waker};
+            use futures::task::{Context, Poll};
             use std::pin::Pin;
 
             struct Task {
@@ -16,13 +16,13 @@ macro_rules! benchmark_suite {
             impl Future for Task {
                 type Output = ();
 
-                fn poll(mut self: Pin<&mut Self>, w: &Waker) -> Poll<Self::Output> {
+                fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
                     self.depth += 1;
 
                     if self.depth == 300 {
                         Poll::Ready(())
                     } else {
-                        w.wake();
+                        cx.waker().wake_by_ref();
                         Poll::Pending
                     }
                 }

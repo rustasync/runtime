@@ -13,4 +13,4 @@ futures01 = { package = "futures", version = "0.1" }
 lazy_static = "1.0.0"
 mio = "0.6.16"
 runtime-raw = { path = "../runtime-raw" }
-tokio = { version = "0.1", features = ["async-await-preview"] }
+tokio = { version = "0.1" }

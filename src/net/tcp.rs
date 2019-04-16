@@ -24,7 +24,7 @@ use std::pin::Pin;
 use futures::io::*;
 use futures::prelude::*;
 use futures::ready;
-use futures::task::{Poll, Waker};
+use futures::task::{Context, Poll};
 
 /// A TCP stream between a local and a remote socket.
 ///
@@ -68,7 +68,7 @@ use futures::task::{Poll, Waker};
 /// ```
 #[derive(Debug)]
 pub struct TcpStream {
-    inner: Box<dyn runtime_raw::TcpStream>,
+    inner: Pin<Box<dyn runtime_raw::TcpStream>>,
 }
 
 impl TcpStream {
@@ -167,34 +167,46 @@ impl TcpStream {
 }
 
 impl AsyncRead for TcpStream {
-    fn poll_read(&mut self, waker: &Waker, buf: &mut [u8]) -> Poll<io::Result<usize>> {
-        self.inner.poll_read(waker, buf)
+    fn poll_read(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &mut [u8],
+    ) -> Poll<io::Result<usize>> {
+        self.inner.as_mut().poll_read(cx, buf)
     }
 
     fn poll_vectored_read(
-        &mut self,
-        waker: &Waker,
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
         vec: &mut [&mut IoVec],
     ) -> Poll<io::Result<usize>> {
-        self.inner.poll_vectored_read(waker, vec)
+        self.inner.as_mut().poll_vectored_read(cx, vec)
     }
 }
 
 impl AsyncWrite for TcpStream {
-    fn poll_write(&mut self, waker: &Waker, buf: &[u8]) -> Poll<io::Result<usize>> {
-        self.inner.poll_write(waker, buf)
+    fn poll_write(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &[u8],
+    ) -> Poll<io::Result<usize>> {
+        self.inner.as_mut().poll_write(cx, buf)
     }
 
-    fn poll_flush(&mut self, waker: &Waker) -> Poll<io::Result<()>> {
-        self.inner.poll_flush(waker)
+    fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        self.inner.as_mut().poll_flush(cx)
     }
 
-    fn poll_close(&mut self, waker: &Waker) -> Poll<io::Result<()>> {
-        self.inner.poll_close(waker)
+    fn poll_close(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        self.inner.as_mut().poll_close(cx)
     }
 
-    fn poll_vectored_write(&mut self, waker: &Waker, vec: &[&IoVec]) -> Poll<io::Result<usize>> {
-        self.inner.poll_vectored_write(waker, vec)
+    fn poll_vectored_write(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        vec: &[&IoVec],
+    ) -> Poll<io::Result<usize>> {
+        self.inner.as_mut().poll_vectored_write(cx, vec)
     }
 }
 
@@ -208,18 +220,18 @@ pub struct Connect {
     addrs: Option<io::Result<VecDeque<SocketAddr>>>,
     last_err: Option<io::Error>,
     future:
-        Option<Pin<Box<dyn Future<Output = io::Result<Box<dyn runtime_raw::TcpStream>>> + Send>>>,
+        Option<Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> + Send>>>,
     runtime: &'static dyn runtime_raw::Runtime,
 }
 
 impl Future for Connect {
     type Output = io::Result<TcpStream>;
 
-    fn poll(mut self: Pin<&mut Self>, waker: &Waker) -> Poll<Self::Output> {
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         loop {
             // Poll the connect future, if there is one.
             if let Some(future) = self.future.as_mut() {
-                match future.as_mut().poll(waker) {
+                match future.as_mut().poll(cx) {
                     Poll::Pending => return Poll::Pending,
                     Poll::Ready(Ok(inner)) => return Poll::Ready(Ok(TcpStream { inner })),
                     Poll::Ready(Err(err)) => self.last_err = Some(err),
@@ -305,7 +317,7 @@ impl fmt::Debug for Connect {
 /// ```
 #[derive(Debug)]
 pub struct TcpListener {
-    inner: Box<dyn runtime_raw::TcpListener>,
+    inner: Pin<Box<dyn runtime_raw::TcpListener>>,
 }
 
 impl TcpListener {
@@ -448,8 +460,8 @@ pub struct Accept<'stream> {
 impl<'stream> Future for Accept<'stream> {
     type Output = io::Result<(TcpStream, SocketAddr)>;
 
-    fn poll(mut self: Pin<&mut Self>, waker: &Waker) -> Poll<Self::Output> {
-        match ready!(self.inner.poll_next_unpin(waker)).unwrap() {
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        match ready!(self.inner.poll_next_unpin(cx)).unwrap() {
             Err(err) => Poll::Ready(Err(err)),
             Ok(stream) => {
                 let addr = stream.peer_addr().unwrap();
@@ -475,8 +487,8 @@ pub struct Incoming<'listener> {
 impl<'listener> Stream for Incoming<'listener> {
     type Item = io::Result<TcpStream>;
 
-    fn poll_next(mut self: Pin<&mut Self>, waker: &Waker) -> Poll<Option<Self::Item>> {
-        let inner = ready!(self.inner.inner.poll_accept(waker)?);
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let inner = ready!(self.inner.inner.as_mut().poll_accept(cx)?);
         Poll::Ready(Some(Ok(TcpStream { inner })))
     }
 }

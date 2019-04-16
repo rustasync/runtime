@@ -6,7 +6,7 @@ mod baseline {
     use futures::executor;
     use futures::prelude::*;
     use std::pin::Pin;
-    use std::task::{Poll, Waker};
+    use std::task::{Context, Poll};
 
     #[bench]
     fn smoke(b: &mut test::Bencher) {
@@ -28,13 +28,13 @@ mod baseline {
                 impl Future for Task {
                     type Output = ();
 
-                    fn poll(mut self: Pin<&mut Self>, w: &Waker) -> Poll<Self::Output> {
+                    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
                         self.depth += 1;
 
                         if self.depth == 300 {
                             Poll::Ready(())
                         } else {
-                            w.wake();
+                            cx.waker().wake_by_ref();
                             Poll::Pending
                         }
                     }
@@ -142,8 +142,8 @@ mod baseline {
     impl<T> Future for JoinHandle<T> {
         type Output = T;
 
-        fn poll(mut self: Pin<&mut Self>, waker: &Waker) -> Poll<Self::Output> {
-            match self.rx.poll_unpin(waker) {
+        fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+            match self.rx.poll_unpin(cx) {
                 Poll::Pending => Poll::Pending,
                 Poll::Ready(Ok(t)) => Poll::Ready(t),
                 Poll::Ready(Err(_)) => panic!(), // TODO: Is this OK? Print a better error message?

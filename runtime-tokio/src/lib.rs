@@ -3,7 +3,6 @@
 //! documentation](https://docs.rs/runtime) for more details.
 
 #![feature(async_await, await_macro, futures_api)]
-#![deny(unsafe_code)]
 #![warn(
     missing_debug_implementations,
     missing_docs,
@@ -54,13 +53,14 @@ impl runtime_raw::Runtime for Tokio {
     fn connect_tcp_stream(
         &self,
         addr: &SocketAddr,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Box<dyn runtime_raw::TcpStream>>> + Send>> {
+    ) -> Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> + Send>>
+    {
         use futures::compat::Compat01As03;
         use futures01::Future;
 
         let tokio_connect = tokio::net::TcpStream::connect(addr);
         let connect = tokio_connect.map(|tokio_stream| {
-            Box::new(TcpStream { tokio_stream }) as Box<dyn runtime_raw::TcpStream>
+            Box::pin(TcpStream { tokio_stream }) as Pin<Box<dyn runtime_raw::TcpStream>>
         });
         Box::pin(Compat01As03::new(connect))
     }
@@ -68,13 +68,16 @@ impl runtime_raw::Runtime for Tokio {
     fn bind_tcp_listener(
         &self,
         addr: &SocketAddr,
-    ) -> io::Result<Box<dyn runtime_raw::TcpListener>> {
+    ) -> io::Result<Pin<Box<dyn runtime_raw::TcpListener>>> {
         let tokio_listener = tokio::net::TcpListener::bind(&addr)?;
-        Ok(Box::new(TcpListener { tokio_listener }))
+        Ok(Box::pin(TcpListener { tokio_listener }))
     }
 
-    fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Box<dyn runtime_raw::UdpSocket>> {
+    fn bind_udp_socket(
+        &self,
+        addr: &SocketAddr,
+    ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
-        Ok(Box::new(UdpSocket { tokio_socket }))
+        Ok(Box::pin(UdpSocket { tokio_socket }))
     }
 }
