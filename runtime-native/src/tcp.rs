@@ -3,6 +3,7 @@ use romio::async_ready::{AsyncReadReady, AsyncReady, AsyncWriteReady};
 
 use std::io;
 use std::net::SocketAddr;
+use std::pin::Pin;
 use std::task::{Context, Poll};
 
 #[derive(Debug)]
@@ -16,12 +17,12 @@ pub(crate) struct TcpListener {
 }
 
 impl runtime_raw::TcpStream for TcpStream {
-    fn poll_write_ready(&self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        self.romio_stream.poll_write_ready(cx).map_ok(|_| ())
+    fn poll_write_ready(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        Pin::new(&mut self.romio_stream).poll_write_ready(cx).map_ok(|_| ())
     }
 
-    fn poll_read_ready(&self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        self.romio_stream.poll_read_ready(cx).map_ok(|_| ())
+    fn poll_read_ready(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        Pin::new(&mut self.romio_stream).poll_read_ready(cx).map_ok(|_| ())
     }
 
     fn take_error(&self) -> io::Result<Option<io::Error>> {
@@ -48,22 +49,30 @@ impl runtime_raw::TcpStream for TcpStream {
 }
 
 impl AsyncRead for TcpStream {
-    fn poll_read(&mut self, cx: &mut Context<'_>, mut buf: &mut [u8]) -> Poll<io::Result<usize>> {
-        self.romio_stream.poll_read(cx, &mut buf)
+    fn poll_read(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        mut buf: &mut [u8],
+    ) -> Poll<io::Result<usize>> {
+        Pin::new(&mut self.romio_stream).poll_read(cx, &mut buf)
     }
 }
 
 impl AsyncWrite for TcpStream {
-    fn poll_write(&mut self, cx: &mut Context<'_>, buf: &[u8]) -> Poll<io::Result<usize>> {
-        self.romio_stream.poll_write(cx, &buf)
+    fn poll_write(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &[u8],
+    ) -> Poll<io::Result<usize>> {
+        Pin::new(&mut self.romio_stream).poll_write(cx, &buf)
     }
 
-    fn poll_flush(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        self.romio_stream.poll_flush(cx)
+    fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        Pin::new(&mut self.romio_stream).poll_flush(cx)
     }
 
-    fn poll_close(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        self.romio_stream.poll_close(cx)
+    fn poll_close(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        Pin::new(&mut self.romio_stream).poll_close(cx)
     }
 }
 
@@ -73,13 +82,13 @@ impl runtime_raw::TcpListener for TcpListener {
     }
 
     fn poll_accept(
-        &mut self,
+        mut self: Pin<&mut Self>,
         cx: &mut Context<'_>,
     ) -> Poll<io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
-        self.romio_listener
+        Pin::new(&mut self.romio_listener)
             .poll_ready(cx)
             .map_ok(|(romio_stream, _)| {
-                Box::pin(TcpStream { romio_stream }) as Box<dyn runtime_raw::TcpStream>
+                Box::pin(TcpStream { romio_stream }) as Pin<Box<dyn runtime_raw::TcpStream>>
             })
     }
 

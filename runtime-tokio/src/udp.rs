@@ -2,6 +2,7 @@ use futures01;
 
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::pin::Pin;
 use std::task::{Context, Poll};
 
 #[derive(Debug)]
@@ -15,12 +16,13 @@ impl runtime_raw::UdpSocket for UdpSocket {
     }
 
     fn poll_send_to(
-        &mut self,
+        mut self: Pin<&mut Self>,
         _cx: &mut Context<'_>,
         buf: &[u8],
         receiver: &SocketAddr,
     ) -> Poll<io::Result<usize>> {
-        match self.tokio_socket.poll_send_to(&buf, &receiver) {
+        let socket = unsafe { &mut self.get_unchecked_mut().tokio_socket };
+        match socket.poll_send_to(&buf, &receiver) {
             Err(e) => Poll::Ready(Err(e)),
             Ok(futures01::Async::Ready(size)) => Poll::Ready(Ok(size)),
             Ok(futures01::Async::NotReady) => Poll::Pending,
@@ -28,11 +30,12 @@ impl runtime_raw::UdpSocket for UdpSocket {
     }
 
     fn poll_recv_from(
-        &mut self,
+        mut self: Pin<&mut Self>,
         _cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<(usize, SocketAddr)>> {
-        match self.tokio_socket.poll_recv_from(buf) {
+        let socket = unsafe { &mut self.get_unchecked_mut().tokio_socket };
+        match socket.poll_recv_from(buf) {
             Err(e) => Poll::Ready(Err(e)),
             Ok(futures01::Async::Ready((size, addr))) => Poll::Ready(Ok((size, addr))),
             Ok(futures01::Async::NotReady) => Poll::Pending,

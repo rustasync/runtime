@@ -46,12 +46,12 @@ impl runtime_raw::Runtime for Native {
     fn connect_tcp_stream(
         &self,
         addr: &SocketAddr,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream + Send>>>>>>
+    ) -> Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> + Send>>
     {
         let romio_connect = romio::TcpStream::connect(addr);
         let connect = romio_connect.map(|res| {
             res.map(|romio_stream| {
-                Box::pin(TcpStream { romio_stream }) as Box<dyn runtime_raw::TcpStream>
+                Box::pin(TcpStream { romio_stream }) as Pin<Box<dyn runtime_raw::TcpStream>>
             })
         });
         Box::pin(connect)
@@ -70,6 +70,6 @@ impl runtime_raw::Runtime for Native {
         addr: &SocketAddr,
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let romio_socket = romio::UdpSocket::bind(&addr)?;
-        Ok(Box::new(UdpSocket { romio_socket }))
+        Ok(Box::pin(UdpSocket { romio_socket }))
     }
 }
