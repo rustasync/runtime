@@ -16,7 +16,7 @@ impl runtime_raw::UdpSocket for UdpSocket {
     }
 
     fn poll_send_to(
-        mut self: Pin<&mut Self>,
+        self: Pin<&mut Self>,
         _cx: &mut Context<'_>,
         buf: &[u8],
         receiver: &SocketAddr,
@@ -30,7 +30,7 @@ impl runtime_raw::UdpSocket for UdpSocket {
     }
 
     fn poll_recv_from(
-        mut self: Pin<&mut Self>,
+        self: Pin<&mut Self>,
         _cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<(usize, SocketAddr)>> {

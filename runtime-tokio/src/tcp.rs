@@ -19,7 +19,7 @@ pub(crate) struct TcpListener {
 }
 
 impl runtime_raw::TcpStream for TcpStream {
-    fn poll_write_ready(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+    fn poll_write_ready(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         match self.tokio_stream.poll_write_ready() {
             Err(e) => Poll::Ready(Err(e)),
             Ok(futures01::Async::Ready(_)) => Poll::Ready(Ok(())),
@@ -27,7 +27,7 @@ impl runtime_raw::TcpStream for TcpStream {
         }
     }
 
-    fn poll_read_ready(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+    fn poll_read_ready(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         let mask = mio::Ready::readable();
         match self.tokio_stream.poll_read_ready(mask) {
             Err(e) => Poll::Ready(Err(e)),
@@ -61,7 +61,7 @@ impl runtime_raw::TcpStream for TcpStream {
 
 impl AsyncRead for TcpStream {
     fn poll_read(
-        mut self: Pin<&mut Self>,
+        self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         mut buf: &mut [u8],
     ) -> Poll<io::Result<usize>> {
@@ -72,7 +72,7 @@ impl AsyncRead for TcpStream {
 
 impl AsyncWrite for TcpStream {
     fn poll_write(
-        mut self: Pin<&mut Self>,
+        self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
@@ -80,12 +80,12 @@ impl AsyncWrite for TcpStream {
         Pin::new(&mut stream).poll_write(cx, &buf)
     }
 
-    fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         let mut stream = Compat01As03::new(&self.tokio_stream);
         Pin::new(&mut stream).poll_flush(cx)
     }
 
-    fn poll_close(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+    fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         let mut stream = Compat01As03::new(&self.tokio_stream);
         Pin::new(&mut stream).poll_close(cx)
     }
@@ -97,7 +97,7 @@ impl runtime_raw::TcpListener for TcpListener {
     }
 
     fn poll_accept(
-        mut self: Pin<&mut Self>,
+        self: Pin<&mut Self>,
         _cx: &mut Context<'_>,
     ) -> Poll<io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
         let listener = unsafe { &mut self.get_unchecked_mut().tokio_listener };
