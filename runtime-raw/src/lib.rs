@@ -1,6 +1,6 @@
 //! Types for defining custom [Runtime](https://github.com/rustasync/runtime)s. See the
 //! [Runtime](https://docs.rs/runtime) documentation for more details.
-//! 
+//!
 //! These types are only necessary when implementing custom runtimes. If you're only trying to
 //! perform IO, then there's no need to bother with any of these types as they will have been
 //! implemented for you already.

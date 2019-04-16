@@ -219,8 +219,9 @@ impl AsyncWrite for TcpStream {
 pub struct Connect {
     addrs: Option<io::Result<VecDeque<SocketAddr>>>,
     last_err: Option<io::Error>,
-    future:
-        Option<Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> + Send>>>,
+    future: Option<
+        Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> + Send>>,
+    >,
     runtime: &'static dyn runtime_raw::Runtime,
 }
 

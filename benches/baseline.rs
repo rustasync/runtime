@@ -59,9 +59,7 @@ mod baseline {
     fn spawn_many(b: &mut test::Bencher) {
         b.iter(|| {
             executor::block_on(async {
-                let tasks = (0..25_000)
-                    .map(|_| spawn(async {}))
-                    .collect::<Vec<_>>();
+                let tasks = (0..25_000).map(|_| spawn(async {})).collect::<Vec<_>>();
 
                 for task in tasks {
                     await!(task);
@@ -78,42 +76,41 @@ mod baseline {
         use tokio::reactor::Registration;
         b.iter(|| {
             executor::block_on(async {
-                 let tasks = (0..300)
-                     .map(|_| {
-                         spawn(async {
-                             let (r, s) = mio::Registration::new2();
-                             let registration = Registration::new();
-                             registration.register(&r).unwrap();
+                let tasks = (0..300)
+                    .map(|_| {
+                        spawn(async {
+                            let (r, s) = mio::Registration::new2();
+                            let registration = Registration::new();
+                            registration.register(&r).unwrap();
 
-                             let mut depth = 0;
-                             let mut capture = Some(r);
+                            let mut depth = 0;
+                            let mut capture = Some(r);
 
-                             spawn(
-                                 Compat01As03::new(future::poll_fn(move || loop {
-                                     if registration.poll_read_ready().unwrap().is_ready() {
-                                         depth += 1;
-                                         if depth == 300 {
-                                             capture.take().unwrap();
-                                             return Ok(Async::Ready(()));
-                                         }
-                                     } else {
-                                         s.set_readiness(mio::Ready::readable()).unwrap();
-                                         return Ok(Async::NotReady);
-                                     }
-                                 }))
-                                 .map(|_: Result<(), ()>| ()),
-                             )
-                         })
-                     })
-                     .collect::<Vec<_>>();
+                            spawn(
+                                Compat01As03::new(future::poll_fn(move || loop {
+                                    if registration.poll_read_ready().unwrap().is_ready() {
+                                        depth += 1;
+                                        if depth == 300 {
+                                            capture.take().unwrap();
+                                            return Ok(Async::Ready(()));
+                                        }
+                                    } else {
+                                        s.set_readiness(mio::Ready::readable()).unwrap();
+                                        return Ok(Async::NotReady);
+                                    }
+                                }))
+                                .map(|_: Result<(), ()>| ()),
+                            )
+                        })
+                    })
+                    .collect::<Vec<_>>();
 
-                 for task in tasks {
-                     await!(task);
-                 }
+                for task in tasks {
+                    await!(task);
+                }
             })
         });
-     }
-
+    }
 
     /// Spawn function for juliex to get back a handle
     pub fn spawn<F, T>(fut: F) -> JoinHandle<T>

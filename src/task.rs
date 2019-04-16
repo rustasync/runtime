@@ -4,7 +4,7 @@ use std::pin::Pin;
 
 use futures::future::FutureObj;
 use futures::prelude::*;
-use futures::task::{Poll, Context};
+use futures::task::{Context, Poll};
 
 /// Spawn a future on the runtime's thread pool.
 ///

@@ -40,7 +40,10 @@ pub trait TcpListener: Debug + Send {
     fn local_addr(&self) -> io::Result<SocketAddr>;
 
     /// Check if the listener is ready to accept connections.
-    fn poll_accept(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<Pin<Box<dyn TcpStream>>>>;
+    fn poll_accept(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<io::Result<Pin<Box<dyn TcpStream>>>>;
 
     /// Extracts the raw file descriptor.
     #[cfg(unix)]
