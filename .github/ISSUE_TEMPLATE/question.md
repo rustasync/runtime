@@ -1,18 +1,13 @@
 ---
 name: Question
-about: Have any questions regarding how runtime works?
+about: Create a report to help us improve
 ---
 
-# Question
-## Your Environment
-| Software         | Version(s) |
-| ---------------- | ---------- |
-| runtime      |
-| Rustc            |
-| Operating System |
-
+<!--- Provide a general summary of the issue in the Title above -->
 ## Question
-Provide your question here.
 
-## Context
-How has this issue affected you? What are you trying to accomplish?
+<!--- Provide your detailed question here -->
+
+## Additional context
+<!--- Optionally, supply any additional context of what you are trying to do -->
+
