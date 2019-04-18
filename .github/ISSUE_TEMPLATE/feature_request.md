@@ -2,7 +2,6 @@
 name: Feature Request
 about: Suggest an idea for this project
 title: Feature Request: 
-labels: enhancement
 ---
 <!--- Provide a general summary of the issue in the Title above -->
 
