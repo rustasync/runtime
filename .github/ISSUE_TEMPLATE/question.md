@@ -1,9 +1,11 @@
 ---
-name: Question
+name: Bug Report
 about: Create a report to help us improve
+title: Question:
+labels: question
 ---
-
 <!--- Provide a general summary of the issue in the Title above -->
+
 ## Question
 
 <!--- Provide your detailed question here -->
