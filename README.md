@@ -24,7 +24,7 @@
       alt="Download" />
   </a>
   <!-- docs.rs docs -->
-  <a href="https://rustasync.github.io/runtime/runtime/index.html">
+  <a href="https://docs.rs/runtime">
     <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square"
       alt="docs.rs docs" />
   </a>
@@ -32,7 +32,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://rustasync.github.io/runtime/runtime/index.html">
+    <a href="https://docs.rs/runtime">
       API Docs
     </a>
     <span> | </span>
