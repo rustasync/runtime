@@ -27,7 +27,7 @@ use syn::spanned::Spanned;
 #[proc_macro_attribute]
 pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     let rt = if attr.is_empty() {
-        syn::parse_str("runtime_native::Native").unwrap()
+        syn::parse_str("runtime::native::Native").unwrap()
     } else {
         syn::parse_macro_input!(attr as syn::Expr)
     };
@@ -53,7 +53,7 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let result = quote! {
       fn #name() #ret {
-        runtime_raw::enter(#rt, async { #body })
+        runtime::raw::enter(#rt, async { #body })
       }
     };
 
@@ -75,7 +75,7 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     let rt = if attr.is_empty() {
-        syn::parse_str("runtime_native::Native").unwrap()
+        syn::parse_str("runtime::native::Native").unwrap()
     } else {
         syn::parse_macro_input!(attr as syn::Expr)
     };
@@ -95,7 +95,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     let result = quote! {
       #[test]
       fn #name() #ret {
-        runtime_raw::enter(#rt, async { #body })
+        runtime::raw::enter(#rt, async { #body })
       }
     };
 
@@ -119,7 +119,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
     let rt = if attr.is_empty() {
-        syn::parse_str("runtime_native::Native").unwrap()
+        syn::parse_str("runtime::native::Native").unwrap()
     } else {
         syn::parse_macro_input!(attr as syn::Expr)
     };
@@ -147,7 +147,7 @@ pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
       #[bench]
       fn #name(b: &mut test::Bencher) {
         b.iter(|| {
-          let _ = runtime_raw::enter(#rt, async { #body });
+          let _ = runtime::raw::enter(#rt, async { #body });
         });
       }
     };

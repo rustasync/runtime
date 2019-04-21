@@ -106,3 +106,9 @@ pub use runtime_attributes::{bench, test};
 #[doc(inline)]
 #[cfg(not(test))] // NOTE: exporting main breaks tests, we should file an issue.
 pub use runtime_attributes::main;
+
+#[doc(hidden)]
+pub use runtime_raw as raw;
+
+#[doc(hidden)]
+pub use runtime_native as native;

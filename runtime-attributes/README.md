@@ -2,6 +2,9 @@
 Proc Macro attributes for the [Runtime](https://github.com/rustasync/runtime) crate. See the
 [Runtime](https://docs.rs/runtime) documentation for more details.
 
+__This macro was designed to be used from the Runtime crate. Using this in any other way is unlikely
+to work.__
+
 ## Installation
 With [cargo-edit](https://crates.io/crates/cargo-edit) do:
 ```sh
