@@ -159,6 +159,17 @@ With [cargo-edit](https://crates.io/crates/cargo-edit) do:
 $ cargo add runtime --allow-prerelease
 ```
 
+To use Futures in the same project, make sure to install
+[futures-preview](https://docs.rs/futures-preview/) for std futures.
+```sh
+$ cargo add futures-preview --allow-prerelease
+```
+
+`futures-preview` provides support for std futures/futures 0.3, while `futures` provides support for
+the no longer developed futures 0.1. Once futures land in stdlib, it's expected that the two crates
+will merge back into `futures`. With the hopes that eventually most of `futures` will be part of
+stdlib.
+
 ## FAQ
 ### When is it useful to switch Runtimes?
 What might be the best solution now, might not stay the best in the future. As Rust grows, so will
