@@ -1,4 +1,4 @@
-#![feature(test, async_await, await_macro, futures_api)]
+#![feature(test, async_await, await_macro)]
 
 extern crate test;
 

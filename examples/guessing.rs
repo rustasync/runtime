@@ -7,7 +7,7 @@
 //! $ nc localhost 8080
 //! ```
 
-#![feature(async_await, await_macro, futures_api)]
+#![feature(async_await, await_macro)]
 
 use futures::prelude::*;
 use rand::Rng;

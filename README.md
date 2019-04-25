@@ -69,7 +69,7 @@ asynchronous software.
 ## Examples
 __UDP Echo Server__
 ```rust
-#![feature(async_await, await_macro, futures_api)]
+#![feature(async_await, await_macro)]
 
 use runtime::net::UdpSocket;
 
