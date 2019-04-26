@@ -5,7 +5,7 @@
 //! perform IO, then there's no need to bother with any of these types as they will have been
 //! implemented for you already.
 
-#![feature(futures_api, async_await, await_macro)]
+#![feature(async_await, await_macro)]
 #![deny(unsafe_code)]
 #![warn(
     missing_debug_implementations,

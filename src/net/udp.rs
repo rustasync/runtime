@@ -36,7 +36,7 @@ use std::task::{Context, Poll};
 ///
 /// ## Examples
 /// ```no_run
-/// #![feature(async_await, await_macro, futures_api)]
+/// #![feature(async_await, await_macro)]
 ///
 /// use runtime::net::UdpSocket;
 ///
@@ -120,7 +120,7 @@ impl UdpSocket {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro, futures_api)]
+    /// #![feature(async_await, await_macro)]
     /// # use std::error::Error;
     /// use runtime::net::UdpSocket;
     ///
@@ -163,7 +163,7 @@ impl UdpSocket {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro, futures_api)]
+    /// #![feature(async_await, await_macro)]
     /// # use std::error::Error;
     /// use runtime::net::UdpSocket;
     ///
@@ -289,7 +289,7 @@ impl UdpSocket {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// #![feature(async_await, await_macro, futures_api)]
+    /// #![feature(async_await, await_macro)]
     ///
     /// use runtime::net::UdpSocket;
     /// use std::net::Ipv4Addr;
@@ -316,7 +316,7 @@ impl UdpSocket {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// #![feature(async_await, await_macro, futures_api)]
+    /// #![feature(async_await, await_macro)]
     ///
     /// use runtime::net::UdpSocket;
     /// use std::net::{Ipv6Addr, SocketAddr};

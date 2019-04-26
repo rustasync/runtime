@@ -1,4 +1,4 @@
-#![feature(async_await, await_macro, futures_api)]
+#![feature(async_await, await_macro)]
 
 #[runtime::test(runtime_tokio::TokioCurrentThread)]
 async fn spawn() {
