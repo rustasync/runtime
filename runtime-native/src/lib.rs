@@ -11,10 +11,9 @@
 )]
 
 use futures::prelude::*;
-use futures::{future::FutureObj, task::SpawnError};
+use futures::{future::BoxFuture, task::SpawnError};
 use lazy_static::lazy_static;
 
-use std::future::Future;
 use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
@@ -38,23 +37,22 @@ lazy_static! {
 pub struct Native;
 
 impl runtime_raw::Runtime for Native {
-    fn spawn_obj(&self, fut: FutureObj<'static, ()>) -> Result<(), SpawnError> {
-        JULIEX_THREADPOOL.spawn(fut);
+    fn spawn_boxed(&self, fut: BoxFuture<'static, ()>) -> Result<(), SpawnError> {
+        JULIEX_THREADPOOL.spawn_obj(fut.into());
         Ok(())
     }
 
     fn connect_tcp_stream(
         &self,
         addr: &SocketAddr,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> + Send>>
-    {
+    ) -> BoxFuture<'static, io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
         let romio_connect = romio::TcpStream::connect(addr);
         let connect = romio_connect.map(|res| {
             res.map(|romio_stream| {
                 Box::pin(TcpStream { romio_stream }) as Pin<Box<dyn runtime_raw::TcpStream>>
             })
         });
-        Box::pin(connect)
+        connect.boxed()
     }
 
     fn bind_tcp_listener(

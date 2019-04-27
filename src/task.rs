@@ -2,7 +2,6 @@
 
 use std::pin::Pin;
 
-use futures::future::FutureObj;
 use futures::prelude::*;
 use futures::task::{Context, Poll};
 
@@ -37,7 +36,7 @@ where
     };
 
     runtime_raw::current_runtime()
-        .spawn_obj(FutureObj::from(Box::new(fut)))
+        .spawn_boxed(fut.boxed())
         .expect("cannot spawn a future");
 
     JoinHandle { rx }

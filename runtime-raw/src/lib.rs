@@ -15,7 +15,7 @@
 )]
 
 use futures::executor;
-use futures::future::FutureObj;
+use futures::future::BoxFuture;
 use futures::prelude::*;
 use futures::task::SpawnError;
 
@@ -65,8 +65,7 @@ where
         let _ = tx.send(t);
     };
 
-    rt.spawn_obj(FutureObj::from(Box::new(fut)))
-        .expect("cannot spawn a future");
+    rt.spawn_boxed(fut.boxed()).expect("cannot spawn a future");
 
     executor::block_on(rx).expect("the main future has panicked")
 }
@@ -74,7 +73,7 @@ where
 /// The runtime trait.
 pub trait Runtime: Send + Sync + 'static {
     /// Spawn a new future.
-    fn spawn_obj(&self, fut: FutureObj<'static, ()>) -> Result<(), SpawnError>;
+    fn spawn_boxed(&self, fut: BoxFuture<'static, ()>) -> Result<(), SpawnError>;
 
     /// Create a new `TcpStream`.
     ///
@@ -83,7 +82,7 @@ pub trait Runtime: Send + Sync + 'static {
     fn connect_tcp_stream(
         &self,
         addr: &SocketAddr,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn TcpStream>>>> + Send>>;
+    ) -> BoxFuture<'static, io::Result<Pin<Box<dyn TcpStream>>>>;
 
     /// Create a new `TcpListener`.
     ///
