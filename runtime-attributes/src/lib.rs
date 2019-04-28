@@ -34,8 +34,10 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item as syn::ItemFn);
 
     let ret = &input.decl.output;
+    let inputs = &input.decl.inputs;
     let name = &input.ident;
     let body = &input.block;
+    let attrs = &input.attrs;
 
     if name != "main" {
         let tokens = quote_spanned! { name.span() =>
@@ -52,9 +54,17 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     }
 
     let result = quote! {
-      fn #name() #ret {
-        runtime::raw::enter(#rt, async { #body })
-      }
+        fn main() #ret {
+            #(#attrs)*
+            async fn main(#(#inputs),*) #ret {
+                #body
+            }
+
+            runtime::raw::enter(#rt, async {
+                await!(main())
+            })
+        }
+
     };
 
     result.into()
@@ -84,6 +94,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     let ret = &input.decl.output;
     let name = &input.ident;
     let body = &input.block;
+    let attrs = &input.attrs;
 
     if input.asyncness.is_none() {
         let tokens = quote_spanned! { input.span() =>
@@ -94,6 +105,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let result = quote! {
       #[test]
+      #(#attrs)*
       fn #name() #ret {
         runtime::raw::enter(#rt, async { #body })
       }
@@ -128,6 +140,7 @@ pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
     let args = &input.decl.inputs;
     let name = &input.ident;
     let body = &input.block;
+    let attrs = &input.attrs;
 
     if input.asyncness.is_none() {
         let tokens = quote_spanned! { input.span() =>
@@ -145,6 +158,7 @@ pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let result = quote! {
       #[bench]
+      #(#attrs)*
       fn #name(b: &mut test::Bencher) {
         b.iter(|| {
           let _ = runtime::raw::enter(#rt, async { #body });
