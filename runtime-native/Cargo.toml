@@ -1,7 +1,7 @@
 [package]
 name = "runtime-native"
 description = "A cross-platform asynchronous runtime"
-version = "0.3.0-alpha.1"
+version = "0.3.0-alpha.2"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/rustasync/runtime"
@@ -17,5 +17,5 @@ async-datagram = "2.2.0"
 futures-preview = "0.3.0-alpha.15"
 lazy_static = "1.3.0"
 romio = "0.3.0-alpha.6"
-runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.1" }
+runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.2" }
 juliex = "0.3.0-alpha.5"
