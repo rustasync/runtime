@@ -21,6 +21,7 @@ use std::io;
 use std::net::{SocketAddr, ToSocketAddrs};
 use std::pin::Pin;
 
+use futures::future::BoxFuture;
 use futures::io::*;
 use futures::prelude::*;
 use futures::ready;
@@ -219,9 +220,7 @@ impl AsyncWrite for TcpStream {
 pub struct Connect {
     addrs: Option<io::Result<VecDeque<SocketAddr>>>,
     last_err: Option<io::Error>,
-    future: Option<
-        Pin<Box<dyn Future<Output = io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> + Send>>,
-    >,
+    future: Option<BoxFuture<'static, io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>>>,
     runtime: &'static dyn runtime_raw::Runtime,
 }
 

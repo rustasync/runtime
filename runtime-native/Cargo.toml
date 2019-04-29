@@ -14,7 +14,7 @@ edition = "2018"
 
 [dependencies]
 async-datagram = "2.0.0"
-futures-preview = "0.3.0-alpha.13"
+futures-preview = "0.3.0-alpha.15"
 lazy_static = "1.0.0"
 romio = "0.3.0-alpha.5"
 runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.1" }
