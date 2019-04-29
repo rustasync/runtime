@@ -38,7 +38,7 @@ pub struct Native;
 
 impl runtime_raw::Runtime for Native {
     fn spawn_boxed(&self, fut: BoxFuture<'static, ()>) -> Result<(), SpawnError> {
-        JULIEX_THREADPOOL.spawn_obj(fut.into());
+        JULIEX_THREADPOOL.spawn_boxed(fut.into());
         Ok(())
     }
 

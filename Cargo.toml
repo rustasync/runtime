@@ -22,7 +22,7 @@ runtime-native = { path = "runtime-native", version = "0.3.0-alpha.1" }
 failure = "0.1.5"
 futures01 = { package = "futures", version = "0.1" }
 futures-preview = { version = "0.3.0-alpha.15", features = ["nightly", "async-await"] }
-juliex = "0.3.0-alpha.2"
+juliex = "0.3.0-alpha.4"
 mio = "0.6.16"
 rand = "0.6.5"
 runtime-tokio = { path = "runtime-tokio", version = "0.3.0-alpha.1" }

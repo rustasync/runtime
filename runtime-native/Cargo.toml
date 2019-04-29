@@ -18,4 +18,4 @@ futures-preview = "0.3.0-alpha.15"
 lazy_static = "1.0.0"
 romio = "0.3.0-alpha.5"
 runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.1" }
-juliex = "0.3.0-alpha.3"
+juliex = "0.3.0-alpha.4"
