@@ -16,9 +16,9 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
-syn = { version = "0.15", features = ["full"] }
-proc-macro2 = { version = "0.4.24", features = ["nightly"] }
-quote = "0.6"
+syn = { version = "0.15.33", features = ["full"] }
+proc-macro2 = { version = "0.4.29", features = ["nightly"] }
+quote = "0.6.12"
 
 [dev-dependencies]
 runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.1" }

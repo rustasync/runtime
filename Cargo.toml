@@ -13,7 +13,7 @@ categories = ["asynchronous", "network-programming", "filesystem", "concurrency"
 edition = "2018"
 
 [dependencies]
-futures-preview = { version = "0.3.0-alpha.15" }
+futures-preview = "0.3.0-alpha.15"
 runtime-attributes = { path = "runtime-attributes", version = "0.3.0-alpha.2" }
 runtime-raw = { path = "runtime-raw", version = "0.3.0-alpha.1" }
 runtime-native = { path = "runtime-native", version = "0.3.0-alpha.1" }
@@ -22,11 +22,11 @@ runtime-native = { path = "runtime-native", version = "0.3.0-alpha.1" }
 failure = "0.1.5"
 futures01 = { package = "futures", version = "0.1" }
 futures-preview = { version = "0.3.0-alpha.15", features = ["nightly", "async-await"] }
-juliex = "0.3.0-alpha.4"
+juliex = "0.3.0-alpha.5"
 mio = "0.6.16"
 rand = "0.6.5"
 runtime-tokio = { path = "runtime-tokio", version = "0.3.0-alpha.1" }
-tokio = "0.1.18"
+tokio = "0.1.19"
 
 [profile.bench]
 codegen-units = 1
