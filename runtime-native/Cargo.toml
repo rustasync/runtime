@@ -16,6 +16,13 @@ edition = "2018"
 async-datagram = "2.2.0"
 futures-preview = "0.3.0-alpha.15"
 lazy_static = "1.3.0"
-romio = "0.3.0-alpha.6"
 runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.2" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+romio = "0.3.0-alpha.6"
 juliex = "0.3.0-alpha.5"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2.43"
+wasm-bindgen-futures = "0.3.20"
+futures01 = { package = "futures", version = "0.1" }
