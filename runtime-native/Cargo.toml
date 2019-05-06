@@ -13,16 +13,16 @@ categories = ["asynchronous", "network-programming", "filesystem", "concurrency"
 edition = "2018"
 
 [dependencies]
-async-datagram = "2.2.0"
-futures-preview = "0.3.0-alpha.15"
-lazy_static = "1.3.0"
+futures-preview = { version = "0.3.0-alpha.15", features = ["compat"] }
 runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.2" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-romio = "0.3.0-alpha.6"
+async-datagram = "2.2.0"
 juliex = "0.3.0-alpha.5"
+lazy_static = "1.3.0"
+romio = "0.3.0-alpha.6"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+futures01 = { package = "futures", version = "0.1" }
 wasm-bindgen = "0.2.43"
 wasm-bindgen-futures = "0.3.20"
-futures01 = { package = "futures", version = "0.1" }
