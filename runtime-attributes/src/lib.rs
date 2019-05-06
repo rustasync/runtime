@@ -16,7 +16,7 @@ use syn::spanned::Spanned;
 ///
 /// # Examples
 ///
-/// ```
+/// ```ignore
 /// #![feature(async_await)]
 ///
 /// #[runtime::main]
@@ -24,6 +24,7 @@ use syn::spanned::Spanned;
 ///     Ok(())
 /// }
 /// ```
+#[cfg(not(test))] // NOTE: exporting main breaks tests, we should file an issue.
 #[proc_macro_attribute]
 pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     let rt = if attr.is_empty() {
@@ -74,7 +75,7 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Examples
 ///
-/// ```
+/// ```ignore
 /// #![feature(async_await)]
 ///
 /// #[runtime::test]
@@ -118,7 +119,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Examples
 ///
-/// ```
+/// ```ignore
 /// #![feature(async_await, await_macro, test)]
 ///
 /// extern crate test;

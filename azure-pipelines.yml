@@ -16,7 +16,7 @@ jobs:
           rust_version: nightly
       - bash: |
           export RUST_BACKTRACE=1
-          cargo test --all --exclude runtime-attributes || exit
+          cargo test --all || exit
         displayName: "Run cargo test"
   - job: check_benches
     pool:
