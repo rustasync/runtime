@@ -61,9 +61,10 @@ async fn main() -> Result<(), failure::Error> {
     let mut listener = TcpListener::bind("127.0.0.1:8080")?;
     println!("Listening on {}", &listener.local_addr()?);
 
-    let mut incoming = listener.incoming();
-    while let Some(stream) = await!(incoming.next()) {
-        runtime::spawn(play(stream?));
-    }
+    let incoming = listener.incoming().map_err(|e| e.into());
+    await!(incoming.try_for_each_concurrent(!0, async move |stream| {
+        await!(runtime::spawn(play(stream)))?;
+        Ok::<(), failure::Error>(())
+    }))?;
     Ok(())
 }

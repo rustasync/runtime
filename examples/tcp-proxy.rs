@@ -12,23 +12,25 @@ async fn main() -> std::io::Result<()> {
     println!("Listening on {}", listener.local_addr()?);
 
     // accept connections and process them in parallel
-    await!(listener.incoming().try_for_each_concurrent(!0, async move |client| {
-        await!(runtime::spawn(async move {
-            let server = await!(TcpStream::connect("127.0.0.1:8080"))?;
-            println!(
-                "Proxying {} to {}",
-                client.peer_addr()?,
-                server.peer_addr()?
-            );
+    await!(listener
+        .incoming()
+        .try_for_each_concurrent(!0, async move |client| {
+            await!(runtime::spawn(async move {
+                let server = await!(TcpStream::connect("127.0.0.1:8080"))?;
+                println!(
+                    "Proxying {} to {}",
+                    client.peer_addr()?,
+                    server.peer_addr()?
+                );
 
-            let (cr, cw) = &mut client.split();
-            let (sr, sw) = &mut server.split();
-            let a = cr.copy_into(sw);
-            let b = sr.copy_into(cw);
-            try_join!(a, b)?;
+                let (cr, cw) = &mut client.split();
+                let (sr, sw) = &mut server.split();
+                let a = cr.copy_into(sw);
+                let b = sr.copy_into(cw);
+                try_join!(a, b)?;
 
-            Ok::<(), std::io::Error>(())
-        }))
-    }))?;
+                Ok::<(), std::io::Error>(())
+            }))
+        }))?;
     Ok(())
 }
