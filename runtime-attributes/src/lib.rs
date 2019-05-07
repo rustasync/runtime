@@ -169,3 +169,69 @@ pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     result.into()
 }
+
+/// Create an async loop.
+///
+/// # Examples
+///
+/// ```ignore
+/// #![feature(async_await, await_macro)]
+///
+/// use futures::prelude::*;
+/// use futures::stream;
+/// use runtime::for_await;
+///
+/// #[runtime::main]
+/// async fn main() {
+///     // Print items in a series
+///     #[for_await]
+///     for value in stream::iter(1..=5) {
+///         println!("{}", value);
+///     }
+///
+///     // Print items in a series
+///     #[for_await(serial)]
+///     for value in stream::iter(1..=5) {
+///         println!("{}", value);
+///     }
+///
+///     // Print items in parallel, spawning each iteration on the threadpool
+///     #[for_await(try_parallel)]
+///     for value in stream::iter(1..=5) {
+///         println!("{}", value);
+///     }
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn for_await(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let attr_value = if attr.is_empty() {
+        syn::parse_str("serial").unwrap()
+    } else {
+        syn::parse_macro_input!(attr as syn::Expr)
+    };
+
+    let input = syn::parse_macro_input!(item as syn::ExprForLoop);
+    let attrs = &input.attrs;
+    let pat = &input.pat;
+    let expr = &input.expr;
+    let body_block = &input.body;
+
+    match &*format!("{:?}", attr_value) {
+        "serial" => quote! {
+            #(#attrs)*
+            #[futures::for_await]
+            for #pat in #expr #body_block
+        }
+        .into(),
+        "parallel" => quote! {
+            let stream = #expr.map_err(|e| e.into());
+            await!(stream.try_for_each_concurrent(None, async move |#expr| {
+                await!(runtime::spawn(async move #body_block))
+            }))?;
+        }
+        .into(),
+        _ => TokenStream::from(quote_spanned! {
+            input.span() => compile_error!(r##"#[for_await] takes an optional argument of either "serial" or "parallel"##);
+        }),
+    }
+}
