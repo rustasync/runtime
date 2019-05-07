@@ -16,7 +16,7 @@ edition = "2018"
 futures-preview = "0.3.0-alpha.15"
 runtime-attributes = { path = "runtime-attributes", version = "0.3.0-alpha.3" }
 runtime-raw = { path = "runtime-raw", version = "0.3.0-alpha.2" }
-runtime-native = { path = "runtime-native", version = "0.3.0-alpha.2" }
+# runtime-native = { path = "runtime-native", version = "0.3.0-alpha.2" }
 
 [dev-dependencies]
 failure = "0.1.5"
@@ -40,3 +40,8 @@ members = [
   "runtime-raw",
   "runtime-tokio",
 ]
+
+[patch.crates-io.futures-preview]
+git = "https://github.com/taiki-e/futures-rs"
+branch = "async-stream"
+features = ["async-stream", "nightly"]

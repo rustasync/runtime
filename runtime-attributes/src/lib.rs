@@ -223,7 +223,7 @@ pub fn for_await(attr: TokenStream, item: TokenStream) -> TokenStream {
             for #pat in #expr #body_block
         }
         .into(),
-        "parallel" => quote! {
+        "try_parallel" => quote! {
             let stream = #expr.map_err(|e| e.into());
             await!(stream.try_for_each_concurrent(None, async move |#expr| {
                 await!(runtime::spawn(async move #body_block))
@@ -231,7 +231,7 @@ pub fn for_await(attr: TokenStream, item: TokenStream) -> TokenStream {
         }
         .into(),
         _ => TokenStream::from(quote_spanned! {
-            input.span() => compile_error!(r##"#[for_await] takes an optional argument of either "serial" or "parallel"##);
+            input.span() => compile_error!(r##"#[for_await] takes an optional argument of either "serial" or "try_parallel"##);
         }),
     }
 }
