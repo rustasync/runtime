@@ -11,11 +11,9 @@ async fn main() -> std::io::Result<()> {
     let mut listener = TcpListener::bind("127.0.0.1:8081")?;
     println!("Listening on {}", listener.local_addr()?);
 
-    // accept connections and process them serially
-    let mut incoming = listener.incoming();
-    while let Some(client) = incoming.next().await {
-        let handle = runtime::spawn(async move {
-            let client = client?;
+    // accept connections and process them in parallel
+    listener.incoming().try_for_each_concurrent(!0, async move |client| {
+        runtime::spawn(async move {
             let server = TcpStream::connect("127.0.0.1:8080").await?;
             println!(
                 "Proxying {} to {}",
@@ -30,9 +28,7 @@ async fn main() -> std::io::Result<()> {
             try_join!(a, b)?;
 
             Ok::<(), std::io::Error>(())
-        });
-
-        handle.await?;
-    }
+        }).await
+    }).await?;
     Ok(())
 }
