@@ -21,7 +21,7 @@ impl runtime_raw::Runtime for Native {
             .compat()
             .map(|_| JsValue::undefined())
             .map_err(|_| JsValue::undefined());
-        future_to_promise(fut);
+        wasm_bindgen_futures::spawn_local(fut);
         Ok(())
     }
 
