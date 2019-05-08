@@ -15,7 +15,7 @@ mod wasm32;
 #[cfg(all(feature = "wasm-bindgen", target_arch = "wasm32"))]
 pub use wasm32::Native;
 
-#[cfg(not(all(feature = "wasm-bindgen", target_arch = "wasm32")))]
+#[cfg(not(target_arch = "wasm32"))]
 mod not_wasm32;
-#[cfg(not(all(feature = "wasm-bindgen", target_arch = "wasm32")))]
+#[cfg(not(target_arch = "wasm32"))]
 pub use not_wasm32::Native;

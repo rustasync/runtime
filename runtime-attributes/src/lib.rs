@@ -29,7 +29,6 @@ use syn::spanned::Spanned;
 /// }
 /// ```
 #[cfg(not(test))] // NOTE: exporting main breaks tests, we should file an issue.
-#[cfg(not(all(feature = "wasm-bindgen", target_arch = "wasm32")))]
 #[proc_macro_attribute]
 pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     let rt = if attr.is_empty() {
@@ -46,34 +45,48 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     let attrs = &input.attrs;
 
     if name != "main" {
-        let tokens = quote_spanned! { name.span() =>
-          compile_error!("only the main function can be tagged with #[runtime::main]");
-        };
-        return TokenStream::from(tokens);
+        return TokenStream::from(quote_spanned! {
+            input.span() => compile_error!("only the main function can be tagged with #[runtime::main]")
+        });
     }
 
     if input.asyncness.is_none() {
-        let tokens = quote_spanned! { input.span() =>
-          compile_error!("the async keyword is missing from the function declaration");
-        };
-        return TokenStream::from(tokens);
+        return TokenStream::from(quote_spanned! {
+            input.span() => compile_error!("the async keyword is missing from the function declaration")
+        });
     }
 
-    let result = quote! {
-        fn main() #ret {
-            #(#attrs)*
-            async fn main(#(#inputs),*) #ret {
-                #body
+    let res = if cfg!(all(feature = "wasm-bindgen", target_arch = "wasm32")) {
+        quote! {
+            #[wasm_bindgen(start)]
+            pub fn main() #ret {
+                #(#attrs)*
+                async fn main(#(#inputs),*) #ret {
+                    #body
+                }
+
+                runtime::raw::enter(#rt, async {
+                    main().await
+                })
             }
-
-            runtime::raw::enter(#rt, async {
-                main().await
-            })
         }
+    } else if cfg!(not(all(feature = "wasm-bindgen", target_arch = "wasm32"))) {
+        quote! {
+            fn main() #ret {
+                #(#attrs)*
+                async fn main(#(#inputs),*) #ret {
+                    #body
+                }
 
+                runtime::raw::enter(#rt, async {
+                    main().await
+                })
+            }
+        }
+    } else {
+        panic!("Async main is currently not supported for your target architecture");
     };
-
-    result.into()
+    res.into()
 }
 
 /// Creates an async unit test.
@@ -88,9 +101,12 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     Ok(())
 /// }
 /// ```
-#[cfg(not(all(feature = "wasm-bindgen", target_arch = "wasm32")))]
 #[proc_macro_attribute]
 pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
+    if cfg!(all(feature = "wasm-bindgen", target_arch = "wasm32")) {
+        panic!("Async tests are currently not supported in wasm");
+    }
+
     let rt = if attr.is_empty() {
         syn::parse_str("runtime::native::Native").unwrap()
     } else {
@@ -135,9 +151,12 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///   runtime::spawn(async {}).await;
 /// }
 /// ```
-#[cfg(not(all(feature = "wasm-bindgen", target_arch = "wasm32")))]
 #[proc_macro_attribute]
 pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
+    if cfg!(all(feature = "wasm-bindgen", target_arch = "wasm32")) {
+        panic!("Async benchmarks are currently not supported in wasm");
+    }
+
     let rt = if attr.is_empty() {
         syn::parse_str("runtime::native::Native").unwrap()
     } else {
@@ -175,64 +194,4 @@ pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     result.into()
-}
-
-////////////////////////////////////
-// target = "wasm32-unknown-unknown"
-////////////////////////////////////
-
-#[cfg(not(test))] // NOTE: exporting main breaks tests, we should file an issue.
-#[cfg(all(feature = "wasm-bindgen", target_arch = "wasm32"))]
-#[proc_macro_attribute]
-pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(item as syn::ItemFn);
-    let rt = if attr.is_empty() {
-        syn::parse_str("runtime::native::Native").unwrap()
-    } else {
-        syn::parse_macro_input!(attr as syn::Expr)
-    };
-
-    let ret = &input.decl.output;
-    let inputs = &input.decl.inputs;
-    let name = &input.ident;
-    let body = &input.block;
-    let attrs = &input.attrs;
-
-    if name != "main" {
-        return TokenStream::from(quote_spanned! {
-          compile_error!("only the main function can be tagged with #[runtime::main]");
-        });
-    }
-
-    if input.asyncness.is_none() {
-        return TokenStream::from(quote_spanned! {
-            input.span() => compile_error!("the async keyword is missing from the function declaration");
-        });
-    }
-
-    quote!{
-        #[wasm_bindgen(start)]
-        pub fn main() #ret {
-            #(#attrs)*
-            async fn main(#(#inputs),*) #ret {
-                #body
-            }
-
-            runtime::raw::enter(#rt, async {
-                await!(main())
-            })
-        }
-    }
-}
-
-#[cfg(all(feature = "wasm-bindgen", target_arch = "wasm32"))]
-#[proc_macro_attribute]
-pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
-    panic!("Async tests are currently not supported in wasm");
-}
-
-#[cfg(all(feature = "wasm-bindgen", target_arch = "wasm32"))]
-#[proc_macro_attribute]
-pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
-    panic!("Async benchmarks are currently not supported in wasm");
 }
