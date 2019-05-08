@@ -14,7 +14,7 @@ async fn main() -> std::io::Result<()> {
     let mut listener = TcpListener::bind("127.0.0.1:8080")?;
     println!("Listening on {}", listener.local_addr()?);
 
-    #[for_await]
+    #[for_await(try_parallel)]
     for stream in listener.incoming() {
         println!("Accepting from: {}", stream.peer_addr()?);
 
