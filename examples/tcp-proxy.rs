@@ -1,6 +1,7 @@
 //! A TCP proxy server. Forwards connections from port 8081 to port 8080.
 
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
+#![feature(await_macro)] // TODO: When the next version of futures-preview released, remove this.
 
 use futures::prelude::*;
 use futures::try_join;
@@ -13,10 +14,10 @@ async fn main() -> std::io::Result<()> {
 
     // accept connections and process them serially
     let mut incoming = listener.incoming();
-    while let Some(client) = await!(incoming.next()) {
+    while let Some(client) = incoming.next().await {
         let handle = runtime::spawn(async move {
             let client = client?;
-            let server = await!(TcpStream::connect("127.0.0.1:8080"))?;
+            let server = TcpStream::connect("127.0.0.1:8080").await?;
             println!(
                 "Proxying {} to {}",
                 client.peer_addr()?,
@@ -32,7 +33,7 @@ async fn main() -> std::io::Result<()> {
             Ok::<(), std::io::Error>(())
         });
 
-        await!(handle)?;
+        handle.await?;
     }
     Ok(())
 }

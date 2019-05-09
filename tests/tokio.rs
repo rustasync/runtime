@@ -1,4 +1,4 @@
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 
 use runtime_tokio::Tokio;
 
@@ -8,5 +8,5 @@ async fn spawn() {
         println!("hello planet from Tokio");
         42
     });
-    assert_eq!(await!(handle), 42);
+    assert_eq!(handle.await, 42);
 }

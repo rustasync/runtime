@@ -16,7 +16,7 @@
 //! ## Examples
 //! __UDP Echo Server__
 //! ```no_run
-//! #![feature(async_await, await_macro)]
+//! #![feature(async_await)]
 //!
 //! use runtime::net::UdpSocket;
 //!
@@ -28,8 +28,8 @@
 //!     println!("Listening on {}", socket.local_addr()?);
 //!
 //!     loop {
-//!         let (recv, peer) = await!(socket.recv_from(&mut buf))?;
-//!         let sent = await!(socket.send_to(&buf[..recv], &peer))?;
+//!         let (recv, peer) = socket.recv_from(&mut buf).await?;
+//!         let sent = socket.send_to(&buf[..recv], &peer).await?;
 //!         println!("Sent {} out of {} bytes to {}", sent, recv, peer);
 //!     }
 //! }
@@ -85,7 +85,7 @@
 //! - [Runtime Tokio](https://docs.rs/runtime-tokio) provides a thread pool, bindings to the OS, and
 //!   a work-stealing scheduler.
 
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 #![deny(unsafe_code)]
 #![warn(
     missing_debug_implementations,

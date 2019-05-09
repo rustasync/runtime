@@ -3,7 +3,7 @@
 
 #![forbid(unsafe_code, future_incompatible, rust_2018_idioms)]
 #![deny(missing_debug_implementations, nonstandard_style)]
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 #![recursion_limit = "512"]
 
 extern crate proc_macro;
@@ -62,7 +62,7 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
             }
 
             runtime::raw::enter(#rt, async {
-                await!(main())
+                main().await
             })
         }
 
@@ -120,13 +120,13 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # Examples
 ///
 /// ```ignore
-/// #![feature(async_await, await_macro, test)]
+/// #![feature(async_await, test)]
 ///
 /// extern crate test;
 ///
 /// #[runtime::test]
 /// async fn spawn_and_await() {
-///   await!(runtime::spawn(async {}));
+///   runtime::spawn(async {}).await;
 /// }
 /// ```
 #[proc_macro_attribute]

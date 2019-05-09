@@ -1,4 +1,4 @@
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 
 //! UDP echo server.
 //!
@@ -17,8 +17,8 @@ async fn main() -> std::io::Result<()> {
     println!("Listening on {}", socket.local_addr()?);
 
     loop {
-        let (recv, peer) = await!(socket.recv_from(&mut buf))?;
-        let sent = await!(socket.send_to(&buf[..recv], &peer))?;
+        let (recv, peer) = socket.recv_from(&mut buf).await?;
+        let sent = socket.send_to(&buf[..recv], &peer).await?;
         println!("Sent {} out of {} bytes to {}", sent, recv, peer);
     }
 }
