@@ -1,4 +1,4 @@
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 
 use runtime_native::Native;
 
@@ -8,5 +8,5 @@ async fn spawn() {
         println!("hello planet from Native");
         42
     });
-    assert_eq!(await!(handle), 42);
+    assert_eq!(handle.await, 42);
 }

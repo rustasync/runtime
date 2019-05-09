@@ -1,4 +1,4 @@
-#![feature(test, async_await, await_macro)]
+#![feature(test, async_await)]
 
 extern crate test;
 
@@ -43,13 +43,13 @@ mod baseline {
                 let tasks = (0..300)
                     .map(|_| {
                         spawn(async move {
-                            await!(Task { depth: 0 });
+                            Task { depth: 0 }.await;
                         })
                     })
                     .collect::<Vec<_>>();
 
                 for task in tasks {
-                    await!(task);
+                    task.await;
                 }
             })
         });
@@ -62,7 +62,7 @@ mod baseline {
                 let tasks = (0..25_000).map(|_| spawn(async {})).collect::<Vec<_>>();
 
                 for task in tasks {
-                    await!(task);
+                    task.await;
                 }
             })
         });
@@ -106,7 +106,7 @@ mod baseline {
                     .collect::<Vec<_>>();
 
                 for task in tasks {
-                    await!(task);
+                    task.await;
                 }
             })
         });
@@ -121,7 +121,7 @@ mod baseline {
         let (tx, rx) = futures::channel::oneshot::channel();
 
         let fut = async move {
-            let t = await!(fut);
+            let t = fut.await;
             let _ = tx.send(t);
         };
 

@@ -46,22 +46,22 @@ use futures::task::{Context, Poll};
 ///
 /// ## Examples
 /// ```no_run
-/// #![feature(async_await, await_macro)]
+/// #![feature(async_await)]
 ///
 /// use futures::prelude::*;
 /// use runtime::net::TcpStream;
 ///
 /// #[runtime::main]
 /// async fn main() -> Result<(), failure::Error> {
-///     let mut stream = await!(TcpStream::connect("127.0.0.1:8080"))?;
+///     let mut stream = TcpStream::connect("127.0.0.1:8080").await?;
 ///     println!("Connected to {}", &stream.peer_addr()?);
 ///
 ///     let msg = "hello world";
 ///     println!("<- {}", msg);
-///     await!(stream.write_all(msg.as_bytes()))?;
+///     stream.write_all(msg.as_bytes()).await?;
 ///
 ///     let mut buf = vec![0u8; 1024];
-///     await!(stream.read(&mut buf))?;
+///     stream.read(&mut buf).await?;
 ///     println!("-> {}\n", std::str::from_utf8(&mut buf)?);
 ///
 ///     Ok(())
@@ -85,11 +85,11 @@ impl TcpStream {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     /// use runtime::net::TcpStream;
     ///
     /// # async fn connect_localhost() -> std::io::Result<()> {
-    /// let stream = await!(TcpStream::connect("127.0.0.1:0"))?;
+    /// let stream = TcpStream::connect("127.0.0.1:0").await?;
     /// # Ok(())}
     /// ```
     pub fn connect<A: ToSocketAddrs>(addr: A) -> Connect {
@@ -105,13 +105,13 @@ impl TcpStream {
     ///
     /// ## Examples
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     /// use runtime::net::TcpStream;
     /// use std::net::{IpAddr, Ipv4Addr};
     ///
     /// # #[runtime::main]
     /// # async fn main() -> std::io::Result<()> {
-    /// let stream = await!(TcpStream::connect("127.0.0.1:8080"))?;
+    /// let stream = TcpStream::connect("127.0.0.1:8080").await?;
     ///
     /// let expected = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
     /// assert_eq!(stream.local_addr()?.ip(), expected);
@@ -125,12 +125,12 @@ impl TcpStream {
     ///
     /// ## Examples
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     /// use runtime::net::TcpStream;
     /// use std::net::{IpAddr, Ipv4Addr};
     ///
     /// # async fn connect_localhost() -> std::io::Result<()> {
-    /// let stream = await!(TcpStream::connect("127.0.0.1:8080"))?;
+    /// let stream = TcpStream::connect("127.0.0.1:8080").await?;
     ///
     /// let expected = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
     /// assert_eq!(stream.peer_addr()?.ip(), expected);
@@ -151,14 +151,14 @@ impl TcpStream {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     ///
     /// use std::net::Shutdown;
     /// use runtime::net::TcpStream;
     ///
     /// # #[runtime::main]
     /// # async fn main() -> std::io::Result<()> {
-    /// let stream = await!(TcpStream::connect("127.0.0.1:8080"))?;
+    /// let stream = TcpStream::connect("127.0.0.1:8080").await?;
     /// stream.shutdown(Shutdown::Both)?;
     /// # Ok(()) }
     /// ```
@@ -290,7 +290,7 @@ impl fmt::Debug for Connect {
 ///
 /// # Examples
 /// ```ignore
-/// #![feature(async_await, await_macro)]
+/// #![feature(async_await)]
 ///
 /// use futures::prelude::*;
 /// use runtime::net::TcpListener;
@@ -302,13 +302,13 @@ impl fmt::Debug for Connect {
 ///
 ///     // accept connections and process them in parallel
 ///     let mut incoming = listener.incoming();
-///     while let Some(stream) = await!(incoming.next()) {
+///     while let Some(stream) = incoming.next().await {
 ///         runtime::spawn(async move {
 ///             let stream = stream?;
 ///             println!("Accepting from: {}", stream.peer_addr()?);
 ///
 ///             let (reader, writer) = &mut stream.split();
-///             await!(reader.copy_into(writer))?;
+///             reader.copy_into(writer).await?;
 ///             Ok::<(), std::io::Error>(())
 ///         });
 ///     }
@@ -366,7 +366,7 @@ impl TcpListener {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     ///
     /// use runtime::net::TcpListener;
     /// use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
@@ -396,7 +396,7 @@ impl TcpListener {
     /// ## Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     ///
     /// use futures::prelude::*;
     /// use runtime::net::TcpListener;
@@ -404,7 +404,7 @@ impl TcpListener {
     /// # async fn work () -> Result<(), Box<dyn std::error::Error + 'static>> {
     /// let mut listener = TcpListener::bind("127.0.0.1:0")?;
     /// let mut incoming = listener.incoming();
-    /// while let Some(stream) = await!(incoming.next()) {
+    /// while let Some(stream) = incoming.next().await {
     ///     match stream {
     ///         Ok(stream) => println!("new client!"),
     ///         Err(e) => { /* connection failed */ }
@@ -429,14 +429,14 @@ impl TcpListener {
     /// ## Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     ///
     /// use futures::prelude::*;
     /// use runtime::net::TcpListener;
     ///
     /// # async fn work () -> Result<(), Box<dyn std::error::Error + 'static>> {
     /// let mut listener = TcpListener::bind("127.0.0.1:0")?;
-    /// let (stream, addr) = await!(listener.accept())?;
+    /// let (stream, addr) = listener.accept().await?;
     /// println!("Connected to {}", addr);
     /// # Ok(())}
     /// ```

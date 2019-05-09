@@ -1,4 +1,4 @@
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 
 #[runtime::test(runtime_tokio::TokioCurrentThread)]
 async fn spawn() {
@@ -6,5 +6,5 @@ async fn spawn() {
         println!("hello planet from Tokio current-thread");
         42
     });
-    assert_eq!(await!(handle), 42);
+    assert_eq!(handle.await, 42);
 }

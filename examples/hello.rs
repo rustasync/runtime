@@ -1,4 +1,4 @@
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 
 async fn say_hi() {
     println!("Hello world! 🤖");
@@ -6,5 +6,5 @@ async fn say_hi() {
 
 #[runtime::main]
 async fn main() {
-    await!(say_hi());
+    say_hi().await;
 }

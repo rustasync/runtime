@@ -1,4 +1,4 @@
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 
 //! UDP client.
 //!
@@ -16,10 +16,10 @@ async fn main() -> std::io::Result<()> {
 
     let msg = "hello world";
     println!("<- {}", msg);
-    await!(socket.send_to(msg.as_bytes(), "127.0.0.1:8080"))?;
+    socket.send_to(msg.as_bytes(), "127.0.0.1:8080").await?;
 
     let mut buf = vec![0u8; 1024];
-    await!(socket.recv_from(&mut buf))?;
+    socket.recv_from(&mut buf).await?;
     println!("-> {}\n", String::from_utf8_lossy(&mut buf));
 
     Ok(())

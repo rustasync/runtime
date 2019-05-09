@@ -31,13 +31,13 @@ macro_rules! benchmark_suite {
             let tasks = (0..300)
                 .map(|_| {
                     runtime::spawn(async {
-                        await!(Task { depth: 0 });
+                        Task { depth: 0 }.await;
                     })
                 })
                 .collect::<Vec<_>>();
 
             for task in tasks {
-                await!(task);
+                task.await;
             }
         }
 
@@ -48,7 +48,7 @@ macro_rules! benchmark_suite {
                 .collect::<Vec<_>>();
 
             for task in tasks {
-                await!(task);
+                task.await;
             }
         }
 
@@ -89,7 +89,7 @@ macro_rules! benchmark_suite {
                 .collect::<Vec<_>>();
 
             for task in tasks {
-                await!(task);
+                task.await;
             }
         }
     };
