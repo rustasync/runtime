@@ -176,12 +176,12 @@ impl AsyncRead for TcpStream {
         self.inner.as_mut().poll_read(cx, buf)
     }
 
-    fn poll_vectored_read(
+    fn poll_read_vectored(
         mut self: Pin<&mut Self>,
         cx: &mut Context<'_>,
-        vec: &mut [&mut IoVec],
+        bufs: &mut [IoSliceMut<'_>],
     ) -> Poll<io::Result<usize>> {
-        self.inner.as_mut().poll_vectored_read(cx, vec)
+        self.inner.as_mut().poll_read_vectored(cx, bufs)
     }
 }
 
@@ -202,12 +202,12 @@ impl AsyncWrite for TcpStream {
         self.inner.as_mut().poll_close(cx)
     }
 
-    fn poll_vectored_write(
+    fn poll_write_vectored(
         mut self: Pin<&mut Self>,
         cx: &mut Context<'_>,
-        vec: &[&IoVec],
+        bufs: &[IoSlice<'_>],
     ) -> Poll<io::Result<usize>> {
-        self.inner.as_mut().poll_vectored_write(cx, vec)
+        self.inner.as_mut().poll_write_vectored(cx, bufs)
     }
 }
 

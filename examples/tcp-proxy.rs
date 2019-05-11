@@ -1,7 +1,6 @@
 //! A TCP proxy server. Forwards connections from port 8081 to port 8080.
 
 #![feature(async_await)]
-#![feature(await_macro)] // TODO: When the next version of futures-preview released, remove this.
 
 use futures::prelude::*;
 use futures::try_join;
