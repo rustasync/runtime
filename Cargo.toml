@@ -1,7 +1,7 @@
 [package]
 name = "runtime"
 description = "Empowering everyone to build asynchronous software."
-version = "0.3.0-alpha.3"
+version = "0.3.0-alpha.4"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/rustasync/runtime"
@@ -14,9 +14,9 @@ edition = "2018"
 
 [dependencies]
 futures-preview = "0.3.0-alpha.16"
-runtime-attributes = { path = "runtime-attributes", version = "0.3.0-alpha.3" }
-runtime-raw = { path = "runtime-raw", version = "0.3.0-alpha.2" }
-runtime-native = { path = "runtime-native", version = "0.3.0-alpha.2" }
+runtime-attributes = { path = "runtime-attributes", version = "0.3.0-alpha.4" }
+runtime-raw = { path = "runtime-raw", version = "0.3.0-alpha.3" }
+runtime-native = { path = "runtime-native", version = "0.3.0-alpha.3" }
 
 [dev-dependencies]
 failure = "0.1.5"
