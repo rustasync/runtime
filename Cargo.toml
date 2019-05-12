@@ -22,7 +22,7 @@ runtime-native = { path = "runtime-native", version = "0.3.0-alpha.2" }
 failure = "0.1.5"
 futures01 = { package = "futures", version = "0.1" }
 futures-preview = { version = "0.3.0-alpha.16", features = ["nightly", "async-await"] }
-juliex = "0.3.0-alpha.5"
+juliex = "0.3.0-alpha.6"
 mio = "0.6.16"
 rand = "0.6.5"
 runtime-tokio = { path = "runtime-tokio", version = "0.3.0-alpha.3" }
@@ -40,7 +40,3 @@ members = [
   "runtime-raw",
   "runtime-tokio",
 ]
-
-[patch.crates-io]
-romio = { git = "https://github.com/dbcfd/romio", branch = "futures-changes" }
-juliex = { git = "https://github.com/taiki-e/juliex", branch = "await" }

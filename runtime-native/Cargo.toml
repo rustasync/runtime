@@ -18,9 +18,9 @@ runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.2" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 async-datagram = "2.2.0"
-juliex = "0.3.0-alpha.5"
+juliex = "0.3.0-alpha.6"
 lazy_static = "1.3.0"
-romio = "0.3.0-alpha.6"
+romio = "0.3.0-alpha.7"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 futures01 = { package = "futures", version = "0.1" }
