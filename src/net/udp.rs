@@ -36,7 +36,7 @@ use std::task::{Context, Poll};
 ///
 /// ## Examples
 /// ```no_run
-/// #![feature(async_await, await_macro)]
+/// #![feature(async_await)]
 ///
 /// use runtime::net::UdpSocket;
 ///
@@ -48,8 +48,8 @@ use std::task::{Context, Poll};
 ///     println!("Listening on {}", socket.local_addr()?);
 ///
 ///     loop {
-///         let (recv, peer) = await!(socket.recv_from(&mut buf))?;
-///         let sent = await!(socket.send_to(&buf[..recv], &peer))?;
+///         let (recv, peer) = socket.recv_from(&mut buf).await?;
+///         let sent = socket.send_to(&buf[..recv], &peer).await?;
 ///         println!("Sent {} out of {} bytes to {}", sent, recv, peer);
 ///     }
 /// }
@@ -120,7 +120,7 @@ impl UdpSocket {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     /// # use std::error::Error;
     /// use runtime::net::UdpSocket;
     ///
@@ -135,7 +135,7 @@ impl UdpSocket {
     /// let mut socket = UdpSocket::bind("127.0.0.1:0")?;
     ///
     /// let addr = "127.0.0.1:7878";
-    /// let sent = await!(socket.send_to(THE_MERCHANT_OF_VENICE, &addr))?;
+    /// let sent = socket.send_to(THE_MERCHANT_OF_VENICE, &addr).await?;
     /// println!("Sent {} bytes to {}", sent, addr);
     /// # Ok(())
     /// # }
@@ -163,7 +163,7 @@ impl UdpSocket {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     /// # use std::error::Error;
     /// use runtime::net::UdpSocket;
     ///
@@ -171,7 +171,7 @@ impl UdpSocket {
     /// let mut socket = UdpSocket::bind("127.0.0.1:0")?;
     ///
     /// let mut buf = vec![0; 1024];
-    /// let (recv, peer) = await!(socket.recv_from(&mut buf))?;
+    /// let (recv, peer) = socket.recv_from(&mut buf).await?;
     /// println!("Received {} bytes from {}", recv, peer);
     /// # Ok(buf)
     /// # }
@@ -289,7 +289,7 @@ impl UdpSocket {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     ///
     /// use runtime::net::UdpSocket;
     /// use std::net::Ipv4Addr;
@@ -316,7 +316,7 @@ impl UdpSocket {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// #![feature(async_await, await_macro)]
+    /// #![feature(async_await)]
     ///
     /// use runtime::net::UdpSocket;
     /// use std::net::{Ipv6Addr, SocketAddr};

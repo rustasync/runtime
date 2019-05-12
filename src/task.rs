@@ -12,7 +12,7 @@ use futures::task::{Context, Poll};
 /// # Examples
 ///
 /// ```
-/// #![feature(async_await, await_macro)]
+/// #![feature(async_await)]
 ///
 /// #[runtime::main]
 /// async fn main() {
@@ -20,7 +20,7 @@ use futures::task::{Context, Poll};
 ///         println!("running the future");
 ///         42
 ///     });
-///     assert_eq!(await!(handle), 42);
+///     assert_eq!(handle.await, 42);
 /// }
 /// ```
 pub fn spawn<F, T>(fut: F) -> JoinHandle<T>
@@ -31,7 +31,7 @@ where
     let (tx, rx) = futures::channel::oneshot::channel();
 
     let fut = async move {
-        let t = await!(fut);
+        let t = fut.await;
         let _ = tx.send(t);
     };
 

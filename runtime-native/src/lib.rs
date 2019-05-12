@@ -1,7 +1,7 @@
 //! A cross-platform asynchronous [Runtime](https://github.com/rustasync/runtime). See the [Runtime
 //! documentation](https://docs.rs/runtime) for more details.
 
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 #![deny(unsafe_code)]
 #![warn(
     missing_debug_implementations,

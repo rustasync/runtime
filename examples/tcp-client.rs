@@ -6,22 +6,22 @@
 //! $ cargo run --example tcp-echo
 //! ```
 
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 
 use futures::prelude::*;
 use runtime::net::TcpStream;
 
 #[runtime::main]
 async fn main() -> Result<(), failure::Error> {
-    let mut stream = await!(TcpStream::connect("127.0.0.1:8080"))?;
+    let mut stream = TcpStream::connect("127.0.0.1:8080").await?;
     println!("Connected to {}", &stream.peer_addr()?);
 
     let msg = "hello world";
     println!("<- {}", msg);
-    await!(stream.write_all(msg.as_bytes()))?;
+    stream.write_all(msg.as_bytes()).await?;
 
     let mut buf = vec![0u8; 1024];
-    await!(stream.read(&mut buf))?;
+    stream.read(&mut buf).await?;
     println!("-> {}\n", String::from_utf8(buf)?);
 
     Ok(())

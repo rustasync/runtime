@@ -7,7 +7,7 @@
 //! $ nc localhost 8080
 //! ```
 
-#![feature(async_await, await_macro)]
+#![feature(async_await)]
 
 use futures::prelude::*;
 use rand::Rng;
@@ -21,14 +21,14 @@ async fn play(stream: TcpStream) -> Result<(), failure::Error> {
     let (reader, writer) = &mut stream.split();
     let mut buf = vec![0u8; 1024];
 
-    await!(writer.write_all(b"Guess the number!\n"))?;
+    writer.write_all(b"Guess the number!\n").await?;
 
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
     loop {
-        await!(writer.write_all(b"Please input your guess.\n"))?;
+        writer.write_all(b"Please input your guess.\n").await?;
 
-        let len = await!(reader.read(&mut buf))?;
+        let len = reader.read(&mut buf).await?;
         if len == 0 {
             return Ok(());
         }
@@ -41,13 +41,13 @@ async fn play(stream: TcpStream) -> Result<(), failure::Error> {
         };
 
         let msg = format!("You guessed: {}\n", guess);
-        await!(writer.write_all(msg.as_bytes()))?;
+        writer.write_all(msg.as_bytes()).await?;
 
         match guess.cmp(&secret_number) {
-            Ordering::Less => await!(writer.write_all(b"Too small!\n"))?,
-            Ordering::Greater => await!(writer.write_all(b"Too big!\n"))?,
+            Ordering::Less => writer.write_all(b"Too small!\n").await?,
+            Ordering::Greater => writer.write_all(b"Too big!\n").await?,
             Ordering::Equal => {
-                await!(writer.write_all(b"You win!\n"))?;
+                writer.write_all(b"You win!\n").await?;
                 break;
             }
         }
@@ -62,7 +62,7 @@ async fn main() -> Result<(), failure::Error> {
     println!("Listening on {}", &listener.local_addr()?);
 
     let mut incoming = listener.incoming();
-    while let Some(stream) = await!(incoming.next()) {
+    while let Some(stream) = incoming.next().await {
         runtime::spawn(play(stream?));
     }
     Ok(())
