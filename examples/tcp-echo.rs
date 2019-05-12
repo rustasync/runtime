@@ -23,7 +23,7 @@ async fn main() -> std::io::Result<()> {
             let (reader, writer) = &mut stream.split();
             reader.copy_into(writer).await?;
             Ok::<(), std::io::Error>(())
-        });
+        }).await?;
     }
     Ok(())
 }

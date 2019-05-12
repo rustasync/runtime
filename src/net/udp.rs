@@ -358,6 +358,7 @@ impl UdpSocket {
 /// On success, returns the number of bytes written.
 ///
 /// [`UdpSocket::send_to`]: struct.UdpSocket.html#method.send_to
+#[must_use]
 #[derive(Debug)]
 pub struct SendTo<'socket, 'buf> {
     /// The open socket we use to send the message from.
@@ -392,6 +393,7 @@ impl<'socket, 'buf> Future for SendTo<'socket, 'buf> {
 /// On success, returns the number of bytes read and the origin.
 ///
 /// [`UdpSocket::recv_from`]: struct.UdpSocket.html#method.recv_from
+#[must_use]
 #[derive(Debug)]
 pub struct RecvFrom<'socket, 'buf> {
     socket: &'socket mut UdpSocket,

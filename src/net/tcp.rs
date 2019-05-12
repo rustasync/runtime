@@ -217,6 +217,7 @@ impl AsyncWrite for TcpStream {
 ///
 /// [`TcpStream::connect`]: struct.TcpStream.html#method.connect
 /// [`TcpStream`]: struct.TcpStream.html
+#[must_use]
 pub struct Connect {
     addrs: Option<io::Result<VecDeque<SocketAddr>>>,
     last_err: Option<io::Error>,
@@ -452,6 +453,7 @@ impl TcpListener {
 ///
 /// [`TcpStream::accept`]: struct.TcpStream.html#method.accept
 /// [`TcpStream`]: struct.TcpStream.html
+#[must_use]
 #[derive(Debug)]
 pub struct Accept<'stream> {
     inner: Incoming<'stream>,
