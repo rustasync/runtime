@@ -45,7 +45,7 @@ where
 /// A handle that awaits the result of a [`spawn`]ed future.
 ///
 /// [`spawn`]: fn.spawn.html
-#[must_use = "futures do nothing unless polled"]
+#[must_use = "futures do nothing unless you `.await` or poll them"]
 #[derive(Debug)]
 pub struct JoinHandle<T> {
     pub(crate) rx: futures::channel::oneshot::Receiver<T>,
