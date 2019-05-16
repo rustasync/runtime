@@ -463,13 +463,9 @@ impl<'stream> Future for Accept<'stream> {
     type Output = io::Result<(TcpStream, SocketAddr)>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        match ready!(self.inner.poll_next_unpin(cx)).unwrap() {
-            Err(err) => Poll::Ready(Err(err)),
-            Ok(stream) => {
-                let addr = stream.peer_addr().unwrap();
-                Poll::Ready(Ok((stream, addr)))
-            }
-        }
+        let stream = ready!(self.inner.poll_next_unpin(cx)).unwrap()?;
+        let addr = stream.peer_addr().unwrap();
+        Poll::Ready(Ok((stream, addr)))
     }
 }
 
