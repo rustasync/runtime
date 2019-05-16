@@ -217,7 +217,7 @@ impl AsyncWrite for TcpStream {
 ///
 /// [`TcpStream::connect`]: struct.TcpStream.html#method.connect
 /// [`TcpStream`]: struct.TcpStream.html
-#[must_use = "futures do nothing unless polled"]
+#[must_use = "futures do nothing unless you `.await` or poll them"]
 pub struct Connect {
     addrs: Option<io::Result<VecDeque<SocketAddr>>>,
     last_err: Option<io::Error>,
@@ -453,7 +453,7 @@ impl TcpListener {
 ///
 /// [`TcpStream::accept`]: struct.TcpStream.html#method.accept
 /// [`TcpStream`]: struct.TcpStream.html
-#[must_use = "futures do nothing unless polled"]
+#[must_use = "futures do nothing unless you `.await` or poll them"]
 #[derive(Debug)]
 pub struct Accept<'stream> {
     inner: Incoming<'stream>,
