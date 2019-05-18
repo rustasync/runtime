@@ -19,19 +19,22 @@ use futures::future::BoxFuture;
 use futures::prelude::*;
 use futures::task::SpawnError;
 
+use std::time::Duration;
 use std::cell::Cell;
 use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
 
-mod tcp;
 mod udp;
+mod tcp;
+mod time;
 
-pub use tcp::*;
 pub use udp::*;
+pub use tcp::*;
+pub use time::*;
 
 thread_local! {
-  static RUNTIME: Cell<Option<&'static dyn Runtime>> = Cell::new(None);
+    static RUNTIME: Cell<Option<&'static dyn Runtime>> = Cell::new(None);
 }
 
 /// Get the current runtime.
@@ -95,4 +98,22 @@ pub trait Runtime: Send + Sync + 'static {
     /// This method is defined on the `Runtime` trait because defining it on
     /// `UdpSocket` would prevent it from being a trait object.
     fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Pin<Box<dyn UdpSocket>>>;
+
+    /// Create a new Future that sleeps for the given duration.
+    ///
+    /// This method is defined on the `Runtime` trait because defining it on
+    /// `Delay` would prevent it from being a trait object.
+    fn new_delay(&self, dur: Duration) -> Pin<Box<dyn Delay>>;
+
+    /// Create a new Future that sleeps until the given time.
+    ///
+    /// This method is defined on the `Runtime` trait because defining it on
+    /// `Delay` would prevent it from being a trait object.
+    fn new_delay_at(&self, dur: Duration) -> Pin<Box<dyn Delay>>;
+
+    /// A stream representing notifications at a fixed interval.
+    ///
+    /// This method is defined on the `Runtime` trait because defining it on
+    /// `Interval` would prevent it from being a trait object.
+    fn new_interval(&self, dur: Duration) -> Pin<Box<dyn Interval>>;
 }
