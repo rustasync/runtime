@@ -22,6 +22,7 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use std::sync::{mpsc, Mutex};
 use std::thread;
+use std::time::Duration;
 
 mod tcp;
 mod udp;
@@ -77,6 +78,18 @@ impl runtime_raw::Runtime for Tokio {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { tokio_socket }))
+    }
+
+    fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        unimplemented!();
+    }
+
+    fn new_delay_at(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        unimplemented!();
+    }
+
+    fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        unimplemented!();
     }
 }
 
@@ -142,5 +155,17 @@ impl runtime_raw::Runtime for TokioCurrentThread {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { tokio_socket }))
+    }
+
+    fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        unimplemented!();
+    }
+
+    fn new_delay_at(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        unimplemented!();
+    }
+
+    fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        unimplemented!();
     }
 }

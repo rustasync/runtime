@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use std::future::Future;
 
 use futures::Stream;
