@@ -63,7 +63,7 @@ async fn main() -> Result<(), failure::Error> {
 
     let mut incoming = listener.incoming();
     while let Some(stream) = incoming.next().await {
-        runtime::spawn(play(stream?)).await?;
+        runtime::spawn(play(stream?));
     }
     Ok(())
 }
