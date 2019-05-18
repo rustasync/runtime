@@ -1,6 +1,7 @@
 use futures::prelude::*;
 use futures::{future::BoxFuture, task::SpawnError};
 use lazy_static::lazy_static;
+use futures_timer::Delay as AsyncDelay;
 
 use std::io;
 use std::net::SocketAddr;
@@ -9,9 +10,11 @@ use std::time::Duration;
 
 mod tcp;
 mod udp;
+mod time;
 
 use tcp::{TcpListener, TcpStream};
 use udp::UdpSocket;
+use time::Delay;
 
 lazy_static! {
     static ref JULIEX_THREADPOOL: juliex::ThreadPool = {
@@ -60,8 +63,9 @@ impl runtime_raw::Runtime for Native {
         Ok(Box::pin(UdpSocket { romio_socket }))
     }
 
-    fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
-        unimplemented!();
+    fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let async_delay = AsyncDelay::new(dur);
+        Box::pin(Delay { async_delay })
     }
 
     fn new_delay_at(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
