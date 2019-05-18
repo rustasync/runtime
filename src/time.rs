@@ -1,3 +1,5 @@
+//! Temporal manipulation.
+
 mod delay;
 mod interval;
 

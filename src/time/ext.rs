@@ -15,7 +15,7 @@ pub struct Timeout<T> {
 
 impl<T: Future> Future for Timeout<T> {
     type Output = Result<<T as Future>::Output, TimeoutError>;
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
         unimplemented!();
     }
 }
@@ -25,13 +25,13 @@ pub struct TimeoutError(pub Instant);
 impl Error for TimeoutError {}
 
 impl Debug for TimeoutError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         unimplemented!();
     }
 }
 
 impl Display for TimeoutError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         unimplemented!();
     }
 }
@@ -39,12 +39,12 @@ impl Display for TimeoutError {
 /// Extend `Future` with methods to time out execution.
 pub trait FutureExt: Future + Sized {
     /// Timeout the future if it isn't completed after `dur` duration.
-    fn timeout(self, dur: Duration) -> Timeout<Self> {
+    fn timeout(self, _dur: Duration) -> Timeout<Self> {
         unimplemented!();
     }
 
     /// Timeout the future if it isn't completed by `at`.
-    fn deadline(self, at: Instant) -> Timeout<Self> {
+    fn deadline(self, _at: Instant) -> Timeout<Self> {
         unimplemented!();
     }
 }
