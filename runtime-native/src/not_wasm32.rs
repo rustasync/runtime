@@ -1,7 +1,7 @@
 use futures::prelude::*;
 use futures::{future::BoxFuture, task::SpawnError};
+use futures_timer::{Delay as AsyncDelay, Interval as AsyncInterval};
 use lazy_static::lazy_static;
-use futures_timer::Delay as AsyncDelay;
 
 use std::io;
 use std::net::SocketAddr;
@@ -9,12 +9,12 @@ use std::pin::Pin;
 use std::time::{Duration, Instant};
 
 mod tcp;
-mod udp;
 mod time;
+mod udp;
 
 use tcp::{TcpListener, TcpStream};
+use time::{Delay, Interval};
 use udp::UdpSocket;
-use time::Delay;
 
 lazy_static! {
     static ref JULIEX_THREADPOOL: juliex::ThreadPool = {
@@ -73,7 +73,8 @@ impl runtime_raw::Runtime for Native {
         Box::pin(Delay { async_delay })
     }
 
-    fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
-        unimplemented!();
+    fn new_interval(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        let async_interval = AsyncInterval::new(dur);
+        Box::pin(Interval { async_interval })
     }
 }

@@ -15,7 +15,7 @@ impl Interval {
     /// Create a stream that fires events at a set interval.
     #[inline]
     pub fn new(dur: Duration) -> Self {
-        let inner = runtime_raw::new_interval(dur);
+        let inner = runtime_raw::current_runtime().new_interval(dur);
         Self { inner }
     }
 }
@@ -24,7 +24,7 @@ impl Stream for Interval {
     type Item = Instant;
 
     #[inline]
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        self.inner.as_mut().poll_next(cx)
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        self.inner.poll_next_unpin(cx)
     }
 }

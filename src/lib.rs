@@ -96,6 +96,7 @@
 
 pub mod net;
 pub mod task;
+pub mod time;
 
 #[doc(inline)]
 pub use task::spawn;
