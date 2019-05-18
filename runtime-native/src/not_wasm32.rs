@@ -5,6 +5,7 @@ use lazy_static::lazy_static;
 use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
+use std::time::Duration;
 
 mod tcp;
 mod udp;
@@ -57,5 +58,17 @@ impl runtime_raw::Runtime for Native {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let romio_socket = romio::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { romio_socket }))
+    }
+
+    fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        unimplemented!();
+    }
+
+    fn new_delay_at(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        unimplemented!();
+    }
+
+    fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        unimplemented!();
     }
 }
