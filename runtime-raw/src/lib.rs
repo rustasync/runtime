@@ -19,19 +19,19 @@ use futures::future::BoxFuture;
 use futures::prelude::*;
 use futures::task::SpawnError;
 
-use std::time::{Duration, Instant};
 use std::cell::Cell;
 use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
+use std::time::{Duration, Instant};
 
-mod udp;
 mod tcp;
 mod time;
+mod udp;
 
-pub use udp::*;
 pub use tcp::*;
 pub use time::*;
+pub use udp::*;
 
 thread_local! {
     static RUNTIME: Cell<Option<&'static dyn Runtime>> = Cell::new(None);

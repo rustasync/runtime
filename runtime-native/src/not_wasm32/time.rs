@@ -1,7 +1,7 @@
+use std::fmt;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::Instant;
-use std::fmt;
 
 use futures::prelude::*;
 use futures_timer::{Delay as AsyncDelay, Interval as AsyncInterval};

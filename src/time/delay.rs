@@ -1,9 +1,9 @@
 use futures::prelude::*;
 
+use std::fmt;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
-use std::fmt;
 
 /// A future representing the notification that an elapsed duration has occurred.
 #[must_use = "futures do nothing unless awaited"]
