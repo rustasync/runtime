@@ -30,6 +30,7 @@ juliex = "0.3.0-alpha.6"
 mio = "0.6.16"
 rand = "0.6.5"
 runtime-tokio = { path = "runtime-tokio", version = "0.3.0-alpha.3" }
+futures-timer = "0.1.1"
 tokio = "0.1.19"
 
 [profile.bench]
@@ -44,3 +45,6 @@ members = [
   "runtime-raw",
   "runtime-tokio",
 ]
+
+[patch.crates-io]
+futures-timer = { path = "../../alexcrichton/futures-timer" }
