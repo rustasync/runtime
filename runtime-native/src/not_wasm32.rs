@@ -6,7 +6,7 @@ use futures_timer::Delay as AsyncDelay;
 use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 mod tcp;
 mod udp;
@@ -68,8 +68,9 @@ impl runtime_raw::Runtime for Native {
         Box::pin(Delay { async_delay })
     }
 
-    fn new_delay_at(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
-        unimplemented!();
+    fn new_delay_at(&self, at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let async_delay = AsyncDelay::new_at(at);
+        Box::pin(Delay { async_delay })
     }
 
     fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {

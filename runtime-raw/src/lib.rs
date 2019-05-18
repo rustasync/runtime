@@ -19,7 +19,7 @@ use futures::future::BoxFuture;
 use futures::prelude::*;
 use futures::task::SpawnError;
 
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::cell::Cell;
 use std::io;
 use std::net::SocketAddr;
@@ -109,7 +109,7 @@ pub trait Runtime: Send + Sync + 'static {
     ///
     /// This method is defined on the `Runtime` trait because defining it on
     /// `Delay` would prevent it from being a trait object.
-    fn new_delay_at(&self, dur: Duration) -> Pin<Box<dyn Delay>>;
+    fn new_delay_at(&self, at: Instant) -> Pin<Box<dyn Delay>>;
 
     /// A stream representing notifications at a fixed interval.
     ///

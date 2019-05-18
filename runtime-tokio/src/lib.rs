@@ -22,7 +22,7 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use std::sync::{mpsc, Mutex};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 mod tcp;
 mod udp;
@@ -84,7 +84,7 @@ impl runtime_raw::Runtime for Tokio {
         unimplemented!();
     }
 
-    fn new_delay_at(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+    fn new_delay_at(&self, _at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
         unimplemented!();
     }
 
@@ -161,7 +161,7 @@ impl runtime_raw::Runtime for TokioCurrentThread {
         unimplemented!();
     }
 
-    fn new_delay_at(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+    fn new_delay_at(&self, _at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
         unimplemented!();
     }
 
