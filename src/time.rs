@@ -6,6 +6,8 @@ mod interval;
 pub mod ext;
 
 pub use delay::Delay;
+#[doc(inline)]
+pub use ext::FutureExt;
 pub use interval::Interval;
 
 use std::time::{Duration, Instant};
