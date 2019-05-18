@@ -44,14 +44,14 @@ impl runtime_raw::Runtime for Native {
     }
 
     fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in wasm");
     }
 
     fn new_delay_at(&self, _at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in wasm");
     }
 
     fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in wasm");
     }
 }

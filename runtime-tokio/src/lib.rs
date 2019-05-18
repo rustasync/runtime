@@ -81,15 +81,15 @@ impl runtime_raw::Runtime for Tokio {
     }
 
     fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in runtime-tokio");
     }
 
     fn new_delay_at(&self, _at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in runtime-tokio");
     }
 
     fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in runtime-tokio");
     }
 }
 
@@ -158,14 +158,14 @@ impl runtime_raw::Runtime for TokioCurrentThread {
     }
 
     fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in runtime-tokio");
     }
 
     fn new_delay_at(&self, _at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in runtime-tokio");
     }
 
     fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
-        unimplemented!();
+        panic!("Timers are currently not supported in runtime-tokio");
     }
 }
