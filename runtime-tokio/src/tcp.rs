@@ -20,19 +20,17 @@ pub(crate) struct TcpListener {
 
 impl runtime_raw::TcpStream for TcpStream {
     fn poll_write_ready(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        match self.tokio_stream.poll_write_ready() {
-            Err(e) => Poll::Ready(Err(e)),
-            Ok(futures01::Async::Ready(_)) => Poll::Ready(Ok(())),
-            Ok(futures01::Async::NotReady) => Poll::Pending,
+        match self.tokio_stream.poll_write_ready()? {
+            futures01::Async::Ready(_) => Poll::Ready(Ok(())),
+            futures01::Async::NotReady => Poll::Pending,
         }
     }
 
     fn poll_read_ready(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         let mask = mio::Ready::readable();
-        match self.tokio_stream.poll_read_ready(mask) {
-            Err(e) => Poll::Ready(Err(e)),
-            Ok(futures01::Async::Ready(_)) => Poll::Ready(Ok(())),
-            Ok(futures01::Async::NotReady) => Poll::Pending,
+        match self.tokio_stream.poll_read_ready(mask)? {
+            futures01::Async::Ready(_) => Poll::Ready(Ok(())),
+            futures01::Async::NotReady => Poll::Pending,
         }
     }
 
@@ -101,13 +99,12 @@ impl runtime_raw::TcpListener for TcpListener {
         _cx: &mut Context<'_>,
     ) -> Poll<io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
         let listener = unsafe { &mut self.get_unchecked_mut().tokio_listener };
-        match listener.poll_accept() {
-            Err(e) => Poll::Ready(Err(e)),
-            Ok(futures01::Async::Ready((tokio_stream, _))) => {
+        match listener.poll_accept()? {
+            futures01::Async::Ready((tokio_stream, _)) => {
                 let stream = Box::pin(TcpStream { tokio_stream });
                 Poll::Ready(Ok(stream))
             }
-            Ok(futures01::Async::NotReady) => Poll::Pending,
+            futures01::Async::NotReady => Poll::Pending,
         }
     }
 
