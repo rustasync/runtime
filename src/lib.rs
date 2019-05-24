@@ -111,4 +111,5 @@ pub use runtime_attributes::main;
 pub use runtime_raw as raw;
 
 #[doc(hidden)]
+#[cfg(feature = "native")]
 pub use runtime_native as native;

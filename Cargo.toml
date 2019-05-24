@@ -12,11 +12,15 @@ keywords = ["async", "runtime", "generic", "tokio", "romio"]
 categories = ["asynchronous", "network-programming", "filesystem", "concurrency", "api-bindings"]
 edition = "2018"
 
+[features]
+default = ["native"]
+native = ["runtime-native"]
+
 [dependencies]
 futures-preview = "0.3.0-alpha.16"
 runtime-attributes = { path = "runtime-attributes", version = "0.3.0-alpha.4" }
 runtime-raw = { path = "runtime-raw", version = "0.3.0-alpha.3" }
-runtime-native = { path = "runtime-native", version = "0.3.0-alpha.3" }
+runtime-native = { path = "runtime-native", version = "0.3.0-alpha.3", optional = true }
 
 [dev-dependencies]
 failure = "0.1.5"
