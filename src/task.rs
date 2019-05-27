@@ -23,7 +23,7 @@ use futures::task::{Context, Poll};
 ///     assert_eq!(handle.await, 42);
 /// }
 /// ```
-pub fn spawn<F, T>(fut: F) -> JoinHandle<T>
+pub fn spawn<F, T>(fut: F) -> JoinHandleFuture<T>
 where
     F: Future<Output = T> + Send + 'static,
     T: Send + 'static,
@@ -39,7 +39,7 @@ where
         .spawn_boxed(fut.boxed())
         .expect("cannot spawn a future");
 
-    JoinHandle { rx }
+    JoinHandleFuture { rx }
 }
 
 /// A handle that awaits the result of a [`spawn`]ed future.
@@ -47,11 +47,11 @@ where
 /// [`spawn`]: fn.spawn.html
 #[must_use = "futures do nothing unless you `.await` or poll them"]
 #[derive(Debug)]
-pub struct JoinHandle<T> {
+pub struct JoinHandleFuture<T> {
     pub(crate) rx: futures::channel::oneshot::Receiver<T>,
 }
 
-impl<T> Future for JoinHandle<T> {
+impl<T> Future for JoinHandleFuture<T> {
     type Output = T;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {

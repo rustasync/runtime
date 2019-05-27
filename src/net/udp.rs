@@ -144,12 +144,12 @@ impl UdpSocket {
         &'socket mut self,
         buf: &'buf [u8],
         addr: A,
-    ) -> SendTo<'socket, 'buf> {
+    ) -> SendToFuture<'socket, 'buf> {
         let addr = addr
             .to_socket_addrs()
             .map(|mut iter| iter.next())
             .transpose();
-        SendTo {
+        SendToFuture {
             buf,
             addr,
             socket: self,
@@ -179,8 +179,8 @@ impl UdpSocket {
     pub fn recv_from<'socket, 'buf>(
         &'socket mut self,
         buf: &'buf mut [u8],
-    ) -> RecvFrom<'socket, 'buf> {
-        RecvFrom { buf, socket: self }
+    ) -> RecvFromFuture<'socket, 'buf> {
+        RecvFromFuture { buf, socket: self }
     }
 
     /// Gets the value of the `SO_BROADCAST` option for this socket.
@@ -360,7 +360,7 @@ impl UdpSocket {
 /// [`UdpSocket::send_to`]: struct.UdpSocket.html#method.send_to
 #[must_use = "futures do nothing unless you `.await` or poll them"]
 #[derive(Debug)]
-pub struct SendTo<'socket, 'buf> {
+pub struct SendToFuture<'socket, 'buf> {
     /// The open socket we use to send the message from.
     socket: &'socket mut UdpSocket,
     /// The message we're trying to send.
@@ -369,11 +369,11 @@ pub struct SendTo<'socket, 'buf> {
     addr: Option<io::Result<SocketAddr>>,
 }
 
-impl<'socket, 'buf> Future for SendTo<'socket, 'buf> {
+impl<'socket, 'buf> Future for SendToFuture<'socket, 'buf> {
     type Output = io::Result<usize>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let SendTo { socket, buf, addr } = &mut *self;
+        let SendToFuture { socket, buf, addr } = &mut *self;
         let addr = match addr.take() {
             Some(addr) => addr?,
             None => {
@@ -395,16 +395,16 @@ impl<'socket, 'buf> Future for SendTo<'socket, 'buf> {
 /// [`UdpSocket::recv_from`]: struct.UdpSocket.html#method.recv_from
 #[must_use = "futures do nothing unless you `.await` or poll them"]
 #[derive(Debug)]
-pub struct RecvFrom<'socket, 'buf> {
+pub struct RecvFromFuture<'socket, 'buf> {
     socket: &'socket mut UdpSocket,
     buf: &'buf mut [u8],
 }
 
-impl<'socket, 'buf> Future for RecvFrom<'socket, 'buf> {
+impl<'socket, 'buf> Future for RecvFromFuture<'socket, 'buf> {
     type Output = io::Result<(usize, SocketAddr)>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let RecvFrom { socket, buf } = &mut *self;
+        let RecvFromFuture { socket, buf } = &mut *self;
         socket.inner.as_mut().poll_recv_from(cx, buf)
     }
 }
