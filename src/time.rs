@@ -18,11 +18,11 @@
 //! # #![feature(async_await)]
 //! # #[runtime::main]
 //! # async fn main() {
-//! use runtime::time::wait_for;
+//! use runtime::time::delay_for;
 //! use std::time::{Duration, Instant};
 //!
 //! let start = Instant::now();
-//! let now = wait_for(Duration::from_secs(3)).await;
+//! let now = delay_for(Duration::from_secs(3)).await;
 //!
 //! let elapsed = now - start;
 //! println!("elapsed: {}s", elapsed.as_secs());
@@ -35,13 +35,13 @@
 //! # #[runtime::main]
 //! # async fn main() {
 //! # use futures::for_await;
-//! use runtime::time::repeat;
+//! use runtime::time::interval;
 //! use std::time::{Duration, Instant};
 //!
 //! let start = Instant::now();
 //!
 //! #[for_await]
-//! for now in repeat(Duration::from_secs(2)) {
+//! for now in interval(Duration::from_secs(2)) {
 //!     let elapsed = now - start;
 //!     println!("elapsed: {}s", elapsed.as_secs());
 //! }
@@ -62,18 +62,18 @@ use std::time::{Duration, Instant};
 
 /// Sleep the current future for the given duration.
 #[inline]
-pub fn wait_for(dur: Duration) -> Delay {
+pub fn delay_for(dur: Duration) -> Delay {
     Delay::new(dur)
 }
 
 /// Sleep the current future until the given time.
 #[inline]
-pub fn wait_until(at: Instant) -> Delay {
+pub fn delay_until(at: Instant) -> Delay {
     Delay::new_at(at)
 }
 
 /// Create a stream that fires events at a set interval.
 #[inline]
-pub fn repeat(dur: Duration) -> Interval {
+pub fn interval(dur: Duration) -> Interval {
     Interval::new(dur)
 }
