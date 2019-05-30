@@ -17,7 +17,6 @@ impl Future for Delay {
 
     #[inline]
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        // TODO: this should probably not be fallible.
         futures::ready!(Pin::new(&mut self.async_delay).poll(cx)).unwrap();
         Poll::Ready(Instant::now())
     }
@@ -25,8 +24,11 @@ impl Future for Delay {
 
 // TODO: implement this
 impl fmt::Debug for Delay {
-    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        unimplemented!();
+    // fmt::Display::fmt(self.async_delay, f)
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        f.debug_struct("Delay")
+            .field("when", &"...")
+            .finish()
     }
 }
 
@@ -41,7 +43,6 @@ impl Stream for Interval {
 
     #[inline]
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        // TODO: this should probably not be fallible.
         futures::ready!(Pin::new(&mut self.async_interval).poll_next(cx)).unwrap();
         Poll::Ready(Some(Instant::now()))
     }
@@ -49,7 +50,11 @@ impl Stream for Interval {
 
 // TODO: implement this
 impl fmt::Debug for Interval {
-    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        unimplemented!();
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        // fmt::Display::fmt(self.async_interval, f)
+        f.debug_struct("Interval")
+            .field("delay", &"...")
+            .field("interval", &"...")
+            .finish()
     }
 }
