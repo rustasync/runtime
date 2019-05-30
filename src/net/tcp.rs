@@ -92,8 +92,8 @@ impl TcpStream {
     /// let stream = TcpStream::connect("127.0.0.1:0").await?;
     /// # Ok(())}
     /// ```
-    pub fn connect<A: ToSocketAddrs>(addr: A) -> Connect {
-        Connect {
+    pub fn connect<A: ToSocketAddrs>(addr: A) -> ConnectFuture {
+        ConnectFuture {
             addrs: Some(addr.to_socket_addrs().map(|iter| iter.collect())),
             last_err: None,
             future: None,
@@ -218,14 +218,14 @@ impl AsyncWrite for TcpStream {
 /// [`TcpStream::connect`]: struct.TcpStream.html#method.connect
 /// [`TcpStream`]: struct.TcpStream.html
 #[must_use = "futures do nothing unless you `.await` or poll them"]
-pub struct Connect {
+pub struct ConnectFuture {
     addrs: Option<io::Result<VecDeque<SocketAddr>>>,
     last_err: Option<io::Error>,
     future: Option<BoxFuture<'static, io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>>>,
     runtime: &'static dyn runtime_raw::Runtime,
 }
 
-impl Future for Connect {
+impl Future for ConnectFuture {
     type Output = io::Result<TcpStream>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -267,7 +267,7 @@ impl Future for Connect {
     }
 }
 
-impl fmt::Debug for Connect {
+impl fmt::Debug for ConnectFuture {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Connect")
             .field("addrs", &self.addrs)
@@ -413,8 +413,8 @@ impl TcpListener {
     /// }
     /// # Ok(())}
     /// ```
-    pub fn incoming(&mut self) -> Incoming<'_> {
-        Incoming { inner: self }
+    pub fn incoming(&mut self) -> IncomingStream<'_> {
+        IncomingStream { inner: self }
     }
 
     /// Handle an incoming connection.
@@ -441,9 +441,9 @@ impl TcpListener {
     /// println!("Connected to {}", addr);
     /// # Ok(())}
     /// ```
-    pub fn accept(&mut self) -> Accept<'_> {
+    pub fn accept(&mut self) -> AcceptFuture<'_> {
         let incoming = self.incoming();
-        Accept { inner: incoming }
+        AcceptFuture { inner: incoming }
     }
 }
 
@@ -455,11 +455,11 @@ impl TcpListener {
 /// [`TcpStream`]: struct.TcpStream.html
 #[must_use = "futures do nothing unless you `.await` or poll them"]
 #[derive(Debug)]
-pub struct Accept<'stream> {
-    inner: Incoming<'stream>,
+pub struct AcceptFuture<'stream> {
+    inner: IncomingStream<'stream>,
 }
 
-impl<'stream> Future for Accept<'stream> {
+impl<'stream> Future for AcceptFuture<'stream> {
     type Output = io::Result<(TcpStream, SocketAddr)>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -479,11 +479,11 @@ impl<'stream> Future for Accept<'stream> {
 /// [`TcpListener`]: struct.TcpStream.html
 #[must_use = "streams do nothing unless polled"]
 #[derive(Debug)]
-pub struct Incoming<'listener> {
+pub struct IncomingStream<'listener> {
     inner: &'listener mut TcpListener,
 }
 
-impl<'listener> Stream for Incoming<'listener> {
+impl<'listener> Stream for IncomingStream<'listener> {
     type Item = io::Result<TcpStream>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
