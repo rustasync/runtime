@@ -13,7 +13,7 @@
 //! [`FutureExt`]: trait.FutureExt.html
 //!
 //! ## Examples
-//! __Schedule a 3-second delay__
+//! __Schedule a three-second delay__
 //! ```no_run
 //! # #![feature(async_await)]
 //! # #[runtime::main]
@@ -29,7 +29,7 @@
 //! # }
 //! ```
 //!
-//! __Schedule a 2-second interval__
+//! __Schedule a two-second interval__
 //! ```ignore
 //! # #![feature(async_await)]
 //! # #[runtime::main]

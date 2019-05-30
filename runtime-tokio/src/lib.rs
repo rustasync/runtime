@@ -16,6 +16,7 @@ use futures::{
     task::SpawnError,
 };
 use lazy_static::lazy_static;
+use tokio::timer::{Delay as TokioDelay, Interval as TokioInterval};
 
 use std::io;
 use std::net::SocketAddr;
@@ -26,9 +27,11 @@ use std::time::{Duration, Instant};
 
 mod tcp;
 mod udp;
+mod time;
 
 use tcp::{TcpListener, TcpStream};
 use udp::UdpSocket;
+use time::{Delay, Interval};
 
 /// The default Tokio runtime.
 #[derive(Debug)]
@@ -157,15 +160,18 @@ impl runtime_raw::Runtime for TokioCurrentThread {
         Ok(Box::pin(UdpSocket { tokio_socket }))
     }
 
-    fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
-        panic!("Timers are currently not supported in runtime-tokio");
+    fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let tokio_delay = TokioDelay::new(Instant::now() + dur);
+        Box::pin(Delay { tokio_delay })
     }
 
-    fn new_delay_at(&self, _at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
-        panic!("Timers are currently not supported in runtime-tokio");
+    fn new_delay_at(&self, at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let tokio_delay = TokioDelay::new(at);
+        Box::pin(Delay { tokio_delay })
     }
 
-    fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
-        panic!("Timers are currently not supported in runtime-tokio");
+    fn new_interval(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        let tokio_interval = TokioInterval::new(Instant::now(), dur);
+        Box::pin(Interval { tokio_interval })
     }
 }
