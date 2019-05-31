@@ -99,13 +99,13 @@ pub trait Runtime: Send + Sync + 'static {
     /// `UdpSocket` would prevent it from being a trait object.
     fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Pin<Box<dyn UdpSocket>>>;
 
-    /// Create a new Future that sleeps for the given duration.
+    /// Create a new Future that wakes up after the given duration
     ///
     /// This method is defined on the `Runtime` trait because defining it on
     /// `Delay` would prevent it from being a trait object.
     fn new_delay(&self, dur: Duration) -> Pin<Box<dyn Delay>>;
 
-    /// Create a new Future that sleeps until the given time.
+    /// Create a new Future that wakes up at the given time.
     ///
     /// This method is defined on the `Runtime` trait because defining it on
     /// `Delay` would prevent it from being a trait object.
