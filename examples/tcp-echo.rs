@@ -16,7 +16,7 @@ async fn main() -> std::io::Result<()> {
     // accept connections and process them in parallel
     listener
         .incoming()
-        .try_for_each_concurrent(!0, async move |stream| {
+        .try_for_each_concurrent(None, async move |stream| {
             runtime::spawn(async move {
                 println!("Accepting from: {}", stream.peer_addr()?);
 
