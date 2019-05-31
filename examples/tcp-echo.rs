@@ -14,17 +14,18 @@ async fn main() -> std::io::Result<()> {
     println!("Listening on {}", listener.local_addr()?);
 
     // accept connections and process them in parallel
-    let mut incoming = listener.incoming();
-    while let Some(stream) = incoming.next().await {
-        runtime::spawn(async move {
-            let stream = stream?;
-            println!("Accepting from: {}", stream.peer_addr()?);
+    listener
+        .incoming()
+        .try_for_each_concurrent(None, async move |stream| {
+            runtime::spawn(async move {
+                println!("Accepting from: {}", stream.peer_addr()?);
 
-            let (reader, writer) = &mut stream.split();
-            reader.copy_into(writer).await?;
-            Ok::<(), std::io::Error>(())
+                let (reader, writer) = &mut stream.split();
+                reader.copy_into(writer).await?;
+                Ok::<(), std::io::Error>(())
+            })
+            .await
         })
         .await?;
-    }
     Ok(())
 }
