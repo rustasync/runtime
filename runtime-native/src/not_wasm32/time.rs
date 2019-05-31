@@ -1,4 +1,3 @@
-use std::fmt;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::Instant;
@@ -6,6 +5,7 @@ use std::time::Instant;
 use futures::prelude::*;
 use futures_timer::{Delay as AsyncDelay, Interval as AsyncInterval};
 
+#[derive(Debug)]
 pub(crate) struct Delay {
     pub(crate) async_delay: AsyncDelay,
 }
@@ -22,16 +22,7 @@ impl Future for Delay {
     }
 }
 
-// TODO: implement this
-impl fmt::Debug for Delay {
-    // fmt::Display::fmt(self.async_delay, f)
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        f.debug_struct("Delay")
-            .field("when", &"...")
-            .finish()
-    }
-}
-
+#[derive(Debug)]
 pub(crate) struct Interval {
     pub(crate) async_interval: AsyncInterval,
 }
@@ -45,16 +36,5 @@ impl Stream for Interval {
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         futures::ready!(Pin::new(&mut self.async_interval).poll_next(cx)).unwrap();
         Poll::Ready(Some(Instant::now()))
-    }
-}
-
-// TODO: implement this
-impl fmt::Debug for Interval {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        // fmt::Display::fmt(self.async_interval, f)
-        f.debug_struct("Interval")
-            .field("delay", &"...")
-            .field("interval", &"...")
-            .finish()
     }
 }

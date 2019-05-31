@@ -26,12 +26,12 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 mod tcp;
-mod udp;
 mod time;
+mod udp;
 
 use tcp::{TcpListener, TcpStream};
-use udp::UdpSocket;
 use time::{Delay, Interval};
+use udp::UdpSocket;
 
 /// The default Tokio runtime.
 #[derive(Debug)]
