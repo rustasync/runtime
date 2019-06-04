@@ -21,7 +21,7 @@ async-datagram = "2.2.0"
 juliex = "0.3.0-alpha.6"
 lazy_static = "1.3.0"
 romio = "0.3.0-alpha.7"
-futures-timer = "0.1.1"
+futures-timer = "0.2.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 futures01 = { package = "futures", version = "0.1" }
