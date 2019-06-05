@@ -1,13 +1,12 @@
 //! Extensions for Futures types.
 
-use std::error::Error;
-use std::fmt;
 use std::future::Future;
+use std::io;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
 
-use futures::Stream;
+use futures::{AsyncRead, Stream};
 
 use super::Delay;
 
@@ -26,7 +25,7 @@ impl<F: Future> Timeout<F> {
 }
 
 impl<F: Future> Future for Timeout<F> {
-    type Output = Result<F::Output, TimeoutError>;
+    type Output = Result<F::Output, io::Error>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match self.as_mut().future().poll(cx) {
@@ -35,25 +34,11 @@ impl<F: Future> Future for Timeout<F> {
         }
 
         if self.as_mut().poll(cx).is_ready() {
-            let err = Err(TimeoutError(Instant::now()));
+            let err = Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out").into());
             Poll::Ready(err)
         } else {
             Poll::Pending
         }
-    }
-}
-
-/// An error returned from [`Timeout`] and [`TimeoutStream`].
-///
-/// [`Timeout`]: struct.Timeout.html
-/// [`TimeoutStream`]: struct.TimeoutStream.html
-#[derive(Debug)]
-pub struct TimeoutError(pub Instant);
-impl Error for TimeoutError {}
-
-impl fmt::Display for TimeoutError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        fmt::Debug::fmt(self, f)
     }
 }
 
@@ -166,9 +151,10 @@ pub trait StreamExt: Stream + Sized {
     /// use std::time::{Duration, Instant};
     ///
     /// let start = Instant::now();
+    /// let timeout = Duration::from_millis(150);
     ///
     /// let mut interval = Interval::new(Duration::from_millis(100)).take(2);
-    /// while let Some(now) = interval.next().await {
+    /// while let Some(now) = interval.next().timeout(timeout).await {
     ///     let elapsed = now - start;
     ///     println!("elapsed: {}s", elapsed.as_secs());
     /// }
@@ -182,8 +168,6 @@ pub trait StreamExt: Stream + Sized {
         }
     }
 }
-
-impl<S: Stream> StreamExt for S {}
 
 /// A stream returned by methods in the [`StreamExt`] trait.
 ///
@@ -201,7 +185,7 @@ impl<S: Stream> TimeoutStream<S> {
 }
 
 impl<S: Stream> Stream for TimeoutStream<S> {
-    type Item = Result<S::Item, TimeoutError>;
+    type Item = Result<S::Item, io::Error>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         match self.as_mut().stream().poll_next(cx) {
@@ -215,10 +199,99 @@ impl<S: Stream> Stream for TimeoutStream<S> {
 
         if self.as_mut().timeout().poll(cx).is_ready() {
             *self.as_mut().timeout() = Delay::new(self.dur);
-            let err = Some(Err(TimeoutError(Instant::now())));
+            let err = Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out").into());
+            Poll::Ready(Some(err))
+        } else {
+            Poll::Pending
+        }
+    }
+}
+
+impl<S: Stream> StreamExt for S {}
+
+/// Extend `AsyncRead` with methods to time out execution.
+pub trait AsyncReadExt: AsyncRead + Sized {
+    /// Creates a new stream which will take at most `dur` time to yield each
+    /// item of the stream.
+    ///
+    /// This combinator creates a new stream which wraps the receiving stream
+    /// in a timeout-per-item. The stream returned will resolve in at most
+    /// `dur` time for each item yielded from the stream. The first item's timer
+    /// starts when this method is called.
+    ///
+    /// If a stream's item completes before `dur` elapses then the timer will be
+    /// reset for the next item. If the timeout elapses, however, then an error
+    /// will be yielded on the stream and the timer will be reset.
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// # #![feature(async_await)]
+    /// # #[runtime::main]
+    /// # async fn work () -> Result<(), Box<dyn std::error::Error + 'static>> {
+    /// # use futures::prelude::*;
+    /// use runtime::time::Interval;
+    /// use runtime::net::TcpListener;
+    /// use std::time::{Duration, Instant};
+    ///
+    /// let start = Instant::now();
+    ///
+    /// let mut listener = TcpListener::bind("127.0.0.1:0")?;
+    /// let mut incoming = listener.incoming();
+    /// while let Some(stream) = incoming.next().await {
+    ///     match stream {
+    ///         Ok(stream) => println!("new client!"),
+    ///         Err(e) => { /* connection failed */ }
+    ///     }
+    /// }
+    /// # Ok(())}
+    /// ```
+    fn timeout(self, dur: Duration) -> TimeoutAsyncRead<Self> {
+        TimeoutAsyncRead {
+            timeout: Delay::new(dur),
+            dur,
+            stream: self,
+        }
+    }
+}
+
+/// A stream returned by methods in the [`StreamExt`] trait.
+///
+/// [`StreamExt`]: trait.StreamExt.html
+#[derive(Debug)]
+pub struct TimeoutAsyncRead<S: AsyncRead> {
+    timeout: Delay,
+    dur: Duration,
+    stream: S,
+}
+
+impl<S: AsyncRead> TimeoutAsyncRead<S> {
+    pin_utils::unsafe_pinned!(timeout: Delay);
+    pin_utils::unsafe_pinned!(stream: S);
+}
+
+impl<S: AsyncRead> AsyncRead for TimeoutAsyncRead<S> {
+    fn poll_read(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &mut [u8],
+    ) -> Poll<Result<usize, io::Error>> {
+        match self.as_mut().stream().poll_read(cx, buf) {
+            Poll::Pending => {}
+            Poll::Ready(s) => {
+                *self.as_mut().timeout() = Delay::new(self.dur);
+                return Poll::Ready(s);
+            }
+        }
+
+        if self.as_mut().timeout().poll(cx).is_ready() {
+            *self.as_mut().timeout() = Delay::new(self.dur);
+            let err = Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out").into());
             Poll::Ready(err)
         } else {
             Poll::Pending
         }
     }
 }
+
+impl<S: AsyncRead> AsyncReadExt for S {}

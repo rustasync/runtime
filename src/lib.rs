@@ -116,6 +116,8 @@ pub mod prelude {
     pub use super::time::FutureExt;
     #[doc(inline)]
     pub use super::time::StreamExt;
+    #[doc(inline)]
+    pub use super::time::AsyncReadExt;
 }
 
 #[doc(inline)]
