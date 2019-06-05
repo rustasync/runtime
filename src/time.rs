@@ -61,18 +61,67 @@ pub use interval::Interval;
 use std::time::{Duration, Instant};
 
 /// Sleep the current future for the given duration.
+///
+/// ## Examples
+/// ```
+/// # #![feature(async_await)]
+/// use runtime::time::delay_for;
+/// use std::time::{Duration, Instant};
+///
+/// # #[runtime::main]
+/// # async fn main () -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+/// let start = Instant::now();
+/// let now = delay_for(Duration::from_millis(20)).await;
+///
+/// assert!(now - start >= Duration::from_millis(20));
+/// # Ok(())}
+/// ```
 #[inline]
 pub fn delay_for(dur: Duration) -> Delay {
     Delay::new(dur)
 }
 
 /// Sleep the current future until the given time.
+///
+/// ## Examples
+/// ```
+/// # #![feature(async_await)]
+/// use runtime::time::delay_until;
+/// use std::time::{Duration, Instant};
+///
+/// # #[runtime::main]
+/// # async fn main () -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+/// let start = Instant::now();
+/// let now = delay_until(start + Duration::from_millis(40)).await;
+///
+/// assert!(now - start >= Duration::from_millis(40));
+/// # Ok(())}
+/// ```
 #[inline]
 pub fn delay_until(at: Instant) -> Delay {
     Delay::new_at(at)
 }
 
 /// Create a stream that fires events at a set interval.
+///
+/// ## Examples
+/// ```
+/// # #![feature(async_await)]
+/// # use futures::prelude::*;
+/// use runtime::time::interval;
+/// use std::time::{Duration, Instant};
+///
+/// # #[runtime::main]
+/// # async fn main () -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+/// let start = Instant::now();
+/// let mut interval = interval(Duration::from_millis(10)).take(3);
+/// while let Some(now) = interval.next().await {
+///     println!("{}ms have elapsed", (now - start).as_millis());
+/// }
+///
+/// assert!(Instant::now() - start >= Duration::from_millis(30));
+/// # Ok(())}
+/// ```
 #[inline]
 pub fn interval(dur: Duration) -> Interval {
     Interval::new(dur)
