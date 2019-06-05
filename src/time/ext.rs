@@ -116,7 +116,7 @@ pub trait FutureExt: Future + Sized + Unpin {
     }
 }
 
-impl<T: Future> FutureExt for T {}
+impl<T: Future + Unpin> FutureExt for T {}
 
 /// A stream returned by methods in the [`StreamExt`] trait.
 ///
