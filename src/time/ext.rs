@@ -188,10 +188,9 @@ pub trait StreamTimeExt: Stream + Sized {
     /// # #[runtime::main]
     /// # async fn main () -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
     /// let start = Instant::now();
-    /// let timeout = Duration::from_millis(15);
     /// let mut interval = Interval::new(Duration::from_millis(10))
     ///     .take(3)
-    ///     .timeout(timeout);
+    ///     .timeout(Duration::from_millis(15));
     /// while let Some(now) = interval.next().await {
     ///     println!("{}ms have elapsed", (now? - start).as_millis());
     /// }
@@ -277,7 +276,8 @@ pub trait AsyncReadTimeExt: AsyncRead + Sized {
     /// let start = Instant::now();
     ///
     /// let mut listener = TcpListener::bind("127.0.0.1:0")?;
-    /// let mut incoming = listener.incoming();
+    /// let mut incoming = listener.incoming()
+    ///     .timeout(Duration::from_millis(100));
     /// while let Some(stream) = incoming.next().await {
     ///     match stream {
     ///         Ok(stream) => println!("new client!"),
