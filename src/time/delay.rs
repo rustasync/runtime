@@ -12,14 +12,44 @@ pub struct Delay {
 }
 
 impl Delay {
-    /// Sleep the current future for the given duration.
+    /// Continue execution after the duration has passed.
+    ///
+    /// ## Examples
+    /// ```
+    /// # #![feature(async_await)]
+    /// use runtime::time::Delay;
+    /// use std::time::{Duration, Instant};
+    ///
+    /// # #[runtime::main]
+    /// # async fn main () -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+    /// let start = Instant::now();
+    /// let now = Delay::new(Duration::from_millis(40)).await;
+    ///
+    /// assert!(now - start >= Duration::from_millis(40));
+    /// # Ok(())}
+    /// ```
     #[inline]
     pub fn new(dur: Duration) -> Self {
         let inner = runtime_raw::current_runtime().new_delay(dur);
         Self { inner }
     }
 
-    /// Sleep the current future until the given time.
+    /// Continue execution after the given instant.
+    ///
+    /// ## Examples
+    /// ```
+    /// # #![feature(async_await)]
+    /// use runtime::time::Delay;
+    /// use std::time::{Duration, Instant};
+    ///
+    /// # #[runtime::main]
+    /// # async fn main () -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+    /// let start = Instant::now();
+    /// let now = Delay::new_at(start + Duration::from_millis(40)).await;
+    ///
+    /// assert!(now - start >= Duration::from_millis(40));
+    /// # Ok(())}
+    /// ```
     #[inline]
     pub fn new_at(at: Instant) -> Self {
         let inner = runtime_raw::current_runtime().new_delay_at(at);

@@ -7,7 +7,9 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
 
-/// The Future returned from [`FutureExt.timeout`].
+/// The Future returned from [`FutureExt`].
+///
+/// [`FutureExt.timeout`]: trait.FutureExt.html
 #[derive(Debug)]
 pub struct Timeout<T> {
     _phantom: std::marker::PhantomData<T>,
@@ -20,7 +22,9 @@ impl<T: Future> Future for Timeout<T> {
     }
 }
 
-/// The Error returned in the Future returned from [`FutureExt.timeout`].
+/// The Error returned from [`Timeout`].
+///
+/// [`Timeout`]: struct.Timeout.html
 pub struct TimeoutError(pub Instant);
 impl Error for TimeoutError {}
 
