@@ -15,7 +15,7 @@ use super::Delay;
 ///
 /// [`FutureExt.timeout`]: trait.FutureExt.html
 #[derive(Debug)]
-pub struct Timeout<F: Future> {
+pub struct Timeout<F: Future + Unpin> {
     future: F,
     delay: Delay,
 }
@@ -35,7 +35,7 @@ impl<F: Future + Unpin> Future for Timeout<F> {
 }
 
 /// Extend `Future` with methods to time out execution.
-pub trait FutureExt: Future + Sized {
+pub trait FutureExt: Future + Sized + Unpin {
     /// Creates a new future which will take at most `dur` time to resolve from
     /// the point at which this method is called.
     ///
