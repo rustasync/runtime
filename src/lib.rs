@@ -114,6 +114,8 @@ pub mod time;
 pub mod prelude {
     #[doc(inline)]
     pub use super::time::FutureExt;
+    #[doc(inline)]
+    pub use super::time::StreamExt;
 }
 
 #[doc(inline)]

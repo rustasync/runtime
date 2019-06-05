@@ -7,9 +7,11 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
 
+use futures::Stream;
+
 use super::Delay;
 
-/// The Future returned from [`FutureExt`].
+/// A future returned by methods in the [`FutureExt`] trait.
 ///
 /// [`FutureExt.timeout`]: trait.FutureExt.html
 #[derive(Debug)]
@@ -41,9 +43,10 @@ impl<F: Future> Future for Timeout<F> {
     }
 }
 
-/// The Error returned from [`Timeout`].
+/// An error returned from [`Timeout`] and [`TimeoutStream`].
 ///
 /// [`Timeout`]: struct.Timeout.html
+/// [`TimeoutStream`]: struct.TimeoutStream.html
 #[derive(Debug)]
 pub struct TimeoutError(pub Instant);
 impl Error for TimeoutError {}
@@ -137,3 +140,88 @@ pub trait FutureExt: Future + Sized {
 }
 
 impl<T: Future> FutureExt for T {}
+
+/// Extend `Stream` with methods to time out execution.
+pub trait StreamExt: Stream + Sized {
+    /// Creates a new stream which will take at most `dur` time to yield each
+    /// item of the stream.
+    ///
+    /// This combinator creates a new stream which wraps the receiving stream
+    /// in a timeout-per-item. The stream returned will resolve in at most
+    /// `dur` time for each item yielded from the stream. The first item's timer
+    /// starts when this method is called.
+    ///
+    /// If a stream's item completes before `dur` elapses then the timer will be
+    /// reset for the next item. If the timeout elapses, however, then an error
+    /// will be yielded on the stream and the timer will be reset.
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # #![feature(async_await)]
+    /// # #[runtime::main]
+    /// # async fn main() {
+    /// # use futures::prelude::*;
+    /// use runtime::time::Interval;
+    /// use std::time::{Duration, Instant};
+    ///
+    /// let start = Instant::now();
+    ///
+    /// let mut interval = Interval::new(Duration::from_millis(100)).take(2);
+    /// while let Some(now) = interval.next().await {
+    ///     let elapsed = now - start;
+    ///     println!("elapsed: {}s", elapsed.as_secs());
+    /// }
+    /// # }
+    /// ```
+    fn timeout(self, dur: Duration) -> TimeoutStream<Self> {
+        TimeoutStream {
+            timeout: Delay::new(dur),
+            dur,
+            stream: self,
+        }
+    }
+}
+
+impl<S: Stream> StreamExt for S {}
+
+/// A stream returned by methods in the [`StreamExt`] trait.
+///
+/// [`StreamExt`]: trait.StreamExt.html
+#[derive(Debug)]
+pub struct TimeoutStream<S: Stream> {
+    timeout: Delay,
+    dur: Duration,
+    stream: S,
+}
+
+impl<S: Stream> TimeoutStream<S> {
+    pin_utils::unsafe_pinned!(timeout: Delay);
+    pin_utils::unsafe_pinned!(stream: S);
+}
+
+impl<S: Stream> Stream for TimeoutStream<S> {
+    type Item = Result<S::Item, TimeoutError>;
+
+    fn poll_next(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Option<Self::Item>> {
+        match self.as_mut().stream().poll_next(cx) {
+            Poll::Pending => {}
+            Poll::Ready(s) => {
+                *self.as_mut().timeout() = Delay::new(self.dur);
+                let res = Ok(s).transpose();
+                return Poll::Ready(res);
+            }
+        }
+
+        if self.as_mut().timeout().poll(cx).is_ready() {
+            *self.as_mut().timeout() = Delay::new(self.dur);
+            let err = Some(Err(TimeoutError(Instant::now())));
+            Poll::Ready(err)
+        } else {
+            Poll::Pending
+        }
+    }
+}
