@@ -3,10 +3,10 @@ use futures::prelude::*;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
+use std::fmt;
 
 /// A stream representing notifications at a fixed interval.
 #[must_use = "streams do nothing unless polled"]
-#[derive(Debug)]
 pub struct Interval {
     inner: Pin<Box<dyn runtime_raw::Interval>>,
 }
@@ -45,5 +45,11 @@ impl Stream for Interval {
     #[inline]
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         self.inner.poll_next_unpin(cx)
+    }
+}
+
+impl fmt::Debug for Interval {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        fmt::Debug::fmt(&self.inner, f)
     }
 }
