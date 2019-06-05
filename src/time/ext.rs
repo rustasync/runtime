@@ -270,20 +270,13 @@ pub trait AsyncReadTimeExt: AsyncRead + Sized {
     /// # async fn main () -> Result<(), Box<dyn std::error::Error + 'static + Send + Sync>> {
     /// use futures::prelude::*;
     /// use runtime::prelude::*;
-    /// use runtime::net::TcpListener;
+    /// use runtime::net::TcpStream;
     /// use std::time::{Duration, Instant};
     ///
     /// let start = Instant::now();
     ///
-    /// let mut listener = TcpListener::bind("127.0.0.1:0")?;
-    /// let mut incoming = listener.incoming()
-    ///     .timeout(Duration::from_millis(100));
-    /// while let Some(stream) = incoming.next().await {
-    ///     match stream {
-    ///         Ok(stream) => println!("new client!"),
-    ///         Err(e) => { /* connection failed */ }
-    ///     }
-    /// }
+    /// let stream = TcpStream::connect("127.0.0.1:8080").await?;
+    /// let _stream = stream.timeout(Duration::from_millis(100));
     /// # Ok(())}
     /// ```
     fn timeout(self, dur: Duration) -> TimeoutAsyncRead<Self> {
