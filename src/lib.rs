@@ -98,6 +98,24 @@ pub mod net;
 pub mod task;
 pub mod time;
 
+/// The Runtime Prelude.
+///
+/// Rust comes with a variety of things in its standard library. However, Runtime and Futures
+/// provide new functionality outside of it. We want to make Runtime feel as close to standard Rust
+/// as possible. We care deeply about usability.
+///
+/// The _prelude_ is the list of things we recommend importing into Runtime programs. It's kept as
+/// small as possible, and is focused on things, particularly traits.
+///
+/// To use the `prelude` do:
+/// ```
+/// use runtime::prelude::*;
+/// ```
+pub mod prelude {
+    #[doc(inline)]
+    pub use super::time::FutureExt;
+}
+
 #[doc(inline)]
 pub use task::spawn;
 
