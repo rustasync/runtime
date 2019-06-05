@@ -10,9 +10,9 @@ use futures::{AsyncRead, Stream};
 
 use super::Delay;
 
-/// A future returned by methods in the [`FutureTimeExt`] trait.
+/// A future returned by methods in the [`FutureExt`] trait.
 ///
-/// [`FutureTimeExt.timeout`]: trait.FutureTimeExt.html
+/// [`FutureExt.timeout`]: trait.FutureExt.html
 #[derive(Debug)]
 pub struct Timeout<F: Future> {
     future: F,
@@ -43,7 +43,7 @@ impl<F: Future> Future for Timeout<F> {
 }
 
 /// Extend `Future` with methods to time out execution.
-pub trait FutureTimeExt: Future + Sized {
+pub trait FutureExt: Future + Sized {
     /// Creates a new future which will take at most `dur` time to resolve from
     /// the point at which this method is called.
     ///
@@ -91,7 +91,7 @@ pub trait FutureTimeExt: Future + Sized {
     /// an absolute value rather than a relative one. For more documentation see
     /// the [`timeout`] method.
     ///
-    /// [`timeout`]: trait.FutureTimeExt.html#method.timeout
+    /// [`timeout`]: trait.FutureExt.html#method.timeout
     ///
     /// # Examples
     /// ```
@@ -124,11 +124,11 @@ pub trait FutureTimeExt: Future + Sized {
     }
 }
 
-impl<T: Future> FutureTimeExt for T {}
+impl<T: Future> FutureExt for T {}
 
-/// A stream returned by methods in the [`StreamTimeExt`] trait.
+/// A stream returned by methods in the [`StreamExt`] trait.
 ///
-/// [`StreamTimeExt`]: trait.StreamTimeExt.html
+/// [`StreamExt`]: trait.StreamExt.html
 #[derive(Debug)]
 pub struct TimeoutStream<S: Stream> {
     timeout: Delay,
@@ -165,7 +165,7 @@ impl<S: Stream> Stream for TimeoutStream<S> {
 }
 
 /// Extend `Stream` with methods to time out execution.
-pub trait StreamTimeExt: Stream + Sized {
+pub trait StreamExt: Stream + Sized {
     /// Creates a new stream which will take at most `dur` time to yield each
     /// item of the stream.
     ///
@@ -182,7 +182,7 @@ pub trait StreamTimeExt: Stream + Sized {
     /// ```
     /// # #![feature(async_await)]
     /// # use futures::prelude::*;
-    /// use runtime::time::{Interval, StreamTimeExt as _};
+    /// use runtime::time::{Interval, StreamExt as _};
     /// use std::time::{Duration, Instant};
     ///
     /// # #[runtime::main]
@@ -207,11 +207,11 @@ pub trait StreamTimeExt: Stream + Sized {
     }
 }
 
-impl<S: Stream> StreamTimeExt for S {}
+impl<S: Stream> StreamExt for S {}
 
-/// A stream returned by methods in the [`StreamTimeExt`] trait.
+/// A stream returned by methods in the [`StreamExt`] trait.
 ///
-/// [`StreamTimeExt`]: trait.StreamTimeExt.html
+/// [`StreamExt`]: trait.StreamExt.html
 #[derive(Debug)]
 pub struct TimeoutAsyncRead<S: AsyncRead> {
     timeout: Delay,
@@ -249,7 +249,7 @@ impl<S: AsyncRead> AsyncRead for TimeoutAsyncRead<S> {
 }
 
 /// Extend `AsyncRead` with methods to time out execution.
-pub trait AsyncReadTimeExt: AsyncRead + Sized {
+pub trait AsyncReadExt: AsyncRead + Sized {
     /// Creates a new stream which will take at most `dur` time to yield each
     /// item of the stream.
     ///
@@ -288,4 +288,4 @@ pub trait AsyncReadTimeExt: AsyncRead + Sized {
     }
 }
 
-impl<S: AsyncRead> AsyncReadTimeExt for S {}
+impl<S: AsyncRead> AsyncReadExt for S {}

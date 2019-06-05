@@ -113,11 +113,11 @@ pub mod time;
 /// ```
 pub mod prelude {
     #[doc(inline)]
-    pub use super::time::AsyncReadTimeExt;
+    pub use super::time::AsyncReadExt as _;
     #[doc(inline)]
-    pub use super::time::FutureTimeExt;
+    pub use super::time::FutureExt as _;
     #[doc(inline)]
-    pub use super::time::StreamTimeExt;
+    pub use super::time::StreamExt as _;
 }
 
 #[doc(inline)]
