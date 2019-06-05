@@ -2,6 +2,7 @@
 
 use std::future::Future;
 use std::io;
+use std::marker::Unpin;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
@@ -19,26 +20,17 @@ pub struct Timeout<F: Future> {
     delay: Delay,
 }
 
-impl<F: Future> Timeout<F> {
-    pin_utils::unsafe_pinned!(future: F);
-    pin_utils::unsafe_pinned!(delay: Delay);
-}
-
-impl<F: Future> Future for Timeout<F> {
+impl<F: Future + Unpin> Future for Timeout<F> {
     type Output = Result<F::Output, io::Error>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        match self.as_mut().future().poll(cx) {
-            Poll::Pending => {}
-            Poll::Ready(t) => return Poll::Ready(Ok(t)),
+        if let Poll::Ready(t) = Pin::new(&mut self.future).poll(cx) {
+            return Poll::Ready(Ok(t));
         }
 
-        if self.as_mut().poll(cx).is_ready() {
-            let err = Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out").into());
-            Poll::Ready(err)
-        } else {
-            Poll::Pending
-        }
+        self.as_mut()
+            .poll(cx)
+            .map(|_| Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out")))
     }
 }
 
@@ -130,42 +122,33 @@ impl<T: Future> FutureExt for T {}
 ///
 /// [`StreamExt`]: trait.StreamExt.html
 #[derive(Debug)]
-pub struct TimeoutStream<S: Stream> {
+pub struct TimeoutStream<S: Stream + Unpin> {
     timeout: Delay,
     dur: Duration,
     stream: S,
 }
 
-impl<S: Stream> TimeoutStream<S> {
-    pin_utils::unsafe_pinned!(timeout: Delay);
-    pin_utils::unsafe_pinned!(stream: S);
-}
-
-impl<S: Stream> Stream for TimeoutStream<S> {
+impl<S: Stream + Unpin> Stream for TimeoutStream<S> {
     type Item = Result<S::Item, io::Error>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        match self.as_mut().stream().poll_next(cx) {
-            Poll::Pending => {}
-            Poll::Ready(s) => {
-                *self.as_mut().timeout() = Delay::new(self.dur);
-                let res = Ok(s).transpose();
-                return Poll::Ready(res);
-            }
+        if let Poll::Ready(s) = Pin::new(&mut self.stream).poll_next(cx) {
+            self.timeout = Delay::new(self.dur);
+            return Poll::Ready(Ok(s).transpose());
         }
 
-        if self.as_mut().timeout().poll(cx).is_ready() {
-            *self.as_mut().timeout() = Delay::new(self.dur);
-            let err = Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out").into());
-            Poll::Ready(Some(err))
-        } else {
-            Poll::Pending
-        }
+        Pin::new(&mut self.timeout).poll(cx).map(|_| {
+            self.timeout = Delay::new(self.dur);
+            Some(Err(io::Error::new(
+                io::ErrorKind::TimedOut,
+                "future timed out",
+            )))
+        })
     }
 }
 
 /// Extend `Stream` with methods to time out execution.
-pub trait StreamExt: Stream + Sized {
+pub trait StreamExt: Stream + Sized + Unpin {
     /// Creates a new stream which will take at most `dur` time to yield each
     /// item of the stream.
     ///
@@ -207,49 +190,38 @@ pub trait StreamExt: Stream + Sized {
     }
 }
 
-impl<S: Stream> StreamExt for S {}
+impl<S: Stream + Unpin> StreamExt for S {}
 
 /// A stream returned by methods in the [`StreamExt`] trait.
 ///
 /// [`StreamExt`]: trait.StreamExt.html
 #[derive(Debug)]
-pub struct TimeoutAsyncRead<S: AsyncRead> {
+pub struct TimeoutAsyncRead<S: AsyncRead + Unpin> {
     timeout: Delay,
     dur: Duration,
     stream: S,
 }
 
-impl<S: AsyncRead> TimeoutAsyncRead<S> {
-    pin_utils::unsafe_pinned!(timeout: Delay);
-    pin_utils::unsafe_pinned!(stream: S);
-}
-
-impl<S: AsyncRead> AsyncRead for TimeoutAsyncRead<S> {
+impl<S: AsyncRead + Unpin> AsyncRead for TimeoutAsyncRead<S> {
     fn poll_read(
         mut self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<Result<usize, io::Error>> {
-        match self.as_mut().stream().poll_read(cx, buf) {
-            Poll::Pending => {}
-            Poll::Ready(s) => {
-                *self.as_mut().timeout() = Delay::new(self.dur);
-                return Poll::Ready(s);
-            }
+        if let Poll::Ready(s) = Pin::new(&mut self.stream).poll_read(cx, buf) {
+            self.timeout = Delay::new(self.dur);
+            return Poll::Ready(s);
         }
 
-        if self.as_mut().timeout().poll(cx).is_ready() {
-            *self.as_mut().timeout() = Delay::new(self.dur);
-            let err = Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out").into());
-            Poll::Ready(err)
-        } else {
-            Poll::Pending
-        }
+        Pin::new(&mut self.timeout).poll(cx).map(|_| {
+            self.timeout = Delay::new(self.dur);
+            Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out"))
+        })
     }
 }
 
 /// Extend `AsyncRead` with methods to time out execution.
-pub trait AsyncReadExt: AsyncRead + Sized {
+pub trait AsyncReadExt: AsyncRead + Sized + Unpin {
     /// Creates a new stream which will take at most `dur` time to yield each
     /// item of the stream.
     ///
@@ -288,4 +260,4 @@ pub trait AsyncReadExt: AsyncRead + Sized {
     }
 }
 
-impl<S: AsyncRead> AsyncReadExt for S {}
+impl<S: AsyncRead + Unpin> AsyncReadExt for S {}
