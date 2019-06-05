@@ -58,8 +58,8 @@ impl Delay {
 }
 
 impl fmt::Debug for Delay {
-    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        unimplemented!();
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        fmt::Debug::fmt(&self.inner, f)
     }
 }
 
