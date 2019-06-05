@@ -203,10 +203,7 @@ impl<S: Stream> TimeoutStream<S> {
 impl<S: Stream> Stream for TimeoutStream<S> {
     type Item = Result<S::Item, TimeoutError>;
 
-    fn poll_next(
-        mut self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
-    ) -> Poll<Option<Self::Item>> {
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         match self.as_mut().stream().poll_next(cx) {
             Poll::Pending => {}
             Poll::Ready(s) => {

@@ -1,9 +1,9 @@
 use futures::prelude::*;
 
+use std::fmt;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
-use std::fmt;
 
 /// A stream representing notifications at a fixed interval.
 #[must_use = "streams do nothing unless polled"]

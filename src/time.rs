@@ -49,9 +49,9 @@
 //! ```
 
 mod delay;
-mod interval;
 mod ext;
+mod interval;
 
 pub use delay::*;
-pub use interval::*;
 pub use ext::*;
+pub use interval::*;
