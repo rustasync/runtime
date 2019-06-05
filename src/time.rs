@@ -1,4 +1,4 @@
-//! Types and Functions for temporal manipulation.
+//! Types and Functions for time-related operations.
 //!
 //! This module provides primitives for setting asynchronous timeouts, intervals, and delays.
 //!
