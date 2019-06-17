@@ -1,15 +1,19 @@
 use futures::prelude::*;
 use futures::{future::BoxFuture, task::SpawnError};
+use futures_timer::{Delay as AsyncDelay, Interval as AsyncInterval};
 use lazy_static::lazy_static;
 
 use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
+use std::time::{Duration, Instant};
 
 mod tcp;
+mod time;
 mod udp;
 
 use tcp::{TcpListener, TcpStream};
+use time::{Delay, Interval};
 use udp::UdpSocket;
 
 lazy_static! {
@@ -57,5 +61,20 @@ impl runtime_raw::Runtime for Native {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let romio_socket = romio::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { romio_socket }))
+    }
+
+    fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let async_delay = AsyncDelay::new(dur);
+        Box::pin(Delay { async_delay })
+    }
+
+    fn new_delay_at(&self, at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let async_delay = AsyncDelay::new_at(at);
+        Box::pin(Delay { async_delay })
+    }
+
+    fn new_interval(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        let async_interval = AsyncInterval::new(dur);
+        Box::pin(Interval { async_interval })
     }
 }

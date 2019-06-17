@@ -16,17 +16,21 @@ use futures::{
     task::SpawnError,
 };
 use lazy_static::lazy_static;
+use tokio::timer::{Delay as TokioDelay, Interval as TokioInterval};
 
 use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
 use std::sync::{mpsc, Mutex};
 use std::thread;
+use std::time::{Duration, Instant};
 
 mod tcp;
+mod time;
 mod udp;
 
 use tcp::{TcpListener, TcpStream};
+use time::{Delay, Interval};
 use udp::UdpSocket;
 
 /// The default Tokio runtime.
@@ -77,6 +81,21 @@ impl runtime_raw::Runtime for Tokio {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { tokio_socket }))
+    }
+
+    fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let tokio_delay = TokioDelay::new(Instant::now() + dur);
+        Box::pin(Delay { tokio_delay })
+    }
+
+    fn new_delay_at(&self, at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let tokio_delay = TokioDelay::new(at);
+        Box::pin(Delay { tokio_delay })
+    }
+
+    fn new_interval(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        let tokio_interval = TokioInterval::new(Instant::now(), dur);
+        Box::pin(Interval { tokio_interval })
     }
 }
 
@@ -142,5 +161,20 @@ impl runtime_raw::Runtime for TokioCurrentThread {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { tokio_socket }))
+    }
+
+    fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let tokio_delay = TokioDelay::new(Instant::now() + dur);
+        Box::pin(Delay { tokio_delay })
+    }
+
+    fn new_delay_at(&self, at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
+        let tokio_delay = TokioDelay::new(at);
+        Box::pin(Delay { tokio_delay })
+    }
+
+    fn new_interval(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        let tokio_interval = TokioInterval::new(Instant::now(), dur);
+        Box::pin(Interval { tokio_interval })
     }
 }

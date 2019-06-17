@@ -5,6 +5,7 @@ use futures::{future::BoxFuture, task::SpawnError};
 use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
+use std::time::{Duration, Instant};
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::future_to_promise;
@@ -40,5 +41,17 @@ impl runtime_raw::Runtime for Native {
         _addr: &SocketAddr,
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         panic!("Binding UDP sockets is currently not supported in wasm");
+    }
+
+    fn new_delay(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
+        panic!("Timers are currently not supported in wasm");
+    }
+
+    fn new_delay_at(&self, _at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
+        panic!("Timers are currently not supported in wasm");
+    }
+
+    fn new_interval(&self, _dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
+        panic!("Timers are currently not supported in wasm");
     }
 }
