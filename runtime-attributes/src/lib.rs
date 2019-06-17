@@ -126,7 +126,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// #[runtime::test]
 /// async fn spawn_and_await() {
-///   runtime::spawn(async {}).await;
+///   runtime::task::spawn(async {}).await;
 /// }
 /// ```
 #[proc_macro_attribute]

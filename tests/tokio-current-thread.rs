@@ -2,7 +2,7 @@
 
 #[runtime::test(runtime_tokio::TokioCurrentThread)]
 async fn spawn() {
-    let handle = runtime::spawn(async {
+    let handle = runtime::task::spawn(async {
         println!("hello planet from Tokio current-thread");
         42
     });

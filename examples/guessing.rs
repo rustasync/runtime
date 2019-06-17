@@ -64,7 +64,7 @@ async fn main() -> Result<(), failure::Error> {
     let incoming = listener.incoming().map_err(|e| e.into());
     incoming
         .try_for_each_concurrent(None, async move |stream| {
-            runtime::spawn(play(stream)).await?;
+            runtime::task::spawn(play(stream)).await?;
             Ok::<(), failure::Error>(())
         })
         .await?;

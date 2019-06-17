@@ -16,7 +16,7 @@ use futures::task::{Context, Poll};
 ///
 /// #[runtime::main]
 /// async fn main() {
-///     let handle = runtime::spawn(async {
+///     let handle = runtime::task::spawn(async {
 ///         println!("running the future");
 ///         42
 ///     });

@@ -304,7 +304,7 @@ impl fmt::Debug for ConnectFuture {
 ///     // accept connections and process them in parallel
 ///     let mut incoming = listener.incoming();
 ///     while let Some(stream) = incoming.next().await {
-///         runtime::spawn(async move {
+///         runtime::task::spawn(async move {
 ///             let stream = stream?;
 ///             println!("Accepting from: {}", stream.peer_addr()?);
 ///

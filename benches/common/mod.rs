@@ -30,7 +30,7 @@ macro_rules! benchmark_suite {
 
             let tasks = (0..300)
                 .map(|_| {
-                    runtime::spawn(async {
+                    runtime::task::spawn(async {
                         Task { depth: 0 }.await;
                     })
                 })
@@ -44,7 +44,7 @@ macro_rules! benchmark_suite {
         #[runtime::bench($rt)]
         async fn spawn_many() {
             let tasks = (0..25_000)
-                .map(|_| runtime::spawn(async {}))
+                .map(|_| runtime::task::spawn(async {}))
                 .collect::<Vec<_>>();
 
             for task in tasks {
@@ -61,7 +61,7 @@ macro_rules! benchmark_suite {
 
             let tasks = (0..300)
                 .map(|_| {
-                    runtime::spawn(async {
+                    runtime::task::spawn(async {
                         let (r, s) = mio::Registration::new2();
                         let registration = Registration::new();
                         registration.register(&r).unwrap();
@@ -69,7 +69,7 @@ macro_rules! benchmark_suite {
                         let mut depth = 0;
                         let mut capture = Some(r);
 
-                        runtime::spawn(
+                        runtime::task::spawn(
                             Compat01As03::new(future::poll_fn(move || loop {
                                 if registration.poll_read_ready().unwrap().is_ready() {
                                     depth += 1;
