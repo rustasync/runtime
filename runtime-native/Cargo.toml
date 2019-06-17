@@ -1,7 +1,7 @@
 [package]
 name = "runtime-native"
 description = "A cross-platform asynchronous runtime"
-version = "0.3.0-alpha.3"
+version = "0.3.0-alpha.4"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/rustasync/runtime"
@@ -14,7 +14,7 @@ edition = "2018"
 
 [dependencies]
 futures-preview = { version = "0.3.0-alpha.16", features = ["compat"] }
-runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.2" }
+runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.4" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 async-datagram = "2.2.0"
