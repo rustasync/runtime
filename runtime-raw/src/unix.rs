@@ -1,9 +1,10 @@
 use std::fmt::Debug;
 use std::io;
 use std::net::Shutdown;
-use std::net::SocketAddr;
+use std::os::unix::net::SocketAddr;
 use std::pin::Pin;
 use std::task::{Context, Poll};
+use std::path::PathBuf;
 
 /// A UDP socket.
 pub trait UnixDatagram: Debug + Send {
@@ -25,7 +26,7 @@ pub trait UnixDatagram: Debug + Send {
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &[u8],
-        receiver: &SocketAddr,
+        receiver: &PathBuf,
     ) -> Poll<io::Result<usize>>;
 
     /// Receives data from the IO interface.

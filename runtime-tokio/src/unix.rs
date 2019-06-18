@@ -1,8 +1,9 @@
 use std::io;
 use std::net::Shutdown;
-use std::net::SocketAddr;
+use std::os::unix::net::SocketAddr;
 use std::pin::Pin;
 use std::task::{Context, Poll};
+use std::path::PathBuf;
 
 #[derive(Debug)]
 pub(super) struct UnixDatagram {
@@ -22,7 +23,7 @@ impl runtime_raw::UnixDatagram for UnixDatagram {
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &[u8],
-        receiver: &SocketAddr,
+        receiver: &PathBuf,
     ) -> Poll<io::Result<usize>> {
         unimplemented!();
     }
