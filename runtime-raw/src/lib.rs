@@ -24,14 +24,17 @@ use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
 use std::time::{Duration, Instant};
+use std::path::Path;
 
 mod tcp;
 mod time;
 mod udp;
+mod unix;
 
 pub use tcp::*;
 pub use time::*;
 pub use udp::*;
+pub use unix::*;
 
 thread_local! {
     static RUNTIME: Cell<Option<&'static dyn Runtime>> = Cell::new(None);
@@ -98,6 +101,12 @@ pub trait Runtime: Send + Sync + 'static {
     /// This method is defined on the `Runtime` trait because defining it on
     /// `UdpSocket` would prevent it from being a trait object.
     fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Pin<Box<dyn UdpSocket>>>;
+
+    /// Create a new `UnixDatagram`.
+    ///
+    /// This method is defined on the `Runtime` trait because defining it on
+    /// `UdpSocket` would prevent it from being a trait object.
+    fn bind_unix_datagram(&self, addr: &Path) -> io::Result<Pin<Box<dyn UnixDatagram>>>;
 
     /// Create a new Future that wakes up after the given duration
     ///

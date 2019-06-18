@@ -44,3 +44,6 @@ members = [
   "runtime-raw",
   "runtime-tokio",
 ]
+
+[patch.crates-io]
+romio = { path = "../../withoutboats/romio" }
