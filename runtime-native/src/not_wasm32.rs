@@ -5,9 +5,9 @@ use lazy_static::lazy_static;
 
 use std::io;
 use std::net::SocketAddr;
+use std::path::Path;
 use std::pin::Pin;
 use std::time::{Duration, Instant};
-use std::path::Path;
 
 mod tcp;
 mod time;
@@ -66,7 +66,10 @@ impl runtime_raw::Runtime for Native {
         Ok(Box::pin(UdpSocket { romio_socket }))
     }
 
-    fn bind_unix_datagram(&self, addr: &Path) -> io::Result<Pin<Box<dyn runtime_raw::UnixDatagram>>> {
+    fn bind_unix_datagram(
+        &self,
+        addr: &Path,
+    ) -> io::Result<Pin<Box<dyn runtime_raw::UnixDatagram>>> {
         let romio_datagram = romio::uds::UnixDatagram::bind(&addr)?;
         Ok(Box::pin(UnixDatagram { romio_datagram }))
     }

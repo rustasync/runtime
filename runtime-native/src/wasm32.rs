@@ -43,7 +43,10 @@ impl runtime_raw::Runtime for Native {
         panic!("Binding UDP sockets is currently not supported in wasm");
     }
 
-    fn bind_unix_datagram(&self, addr: &Path) -> io::Result<Pin<Box<dyn runtime_raw::UnixDatagram>>> {
+    fn bind_unix_datagram(
+        &self,
+        addr: &Path,
+    ) -> io::Result<Pin<Box<dyn runtime_raw::UnixDatagram>>> {
         panic!("Unix datagram sockets are currently not supported in wasm");
     }
 

@@ -1,10 +1,10 @@
 use futures::prelude::*;
 
 use std::io;
-use std::pin::Pin;
-use std::task::{Context, Poll};
 use std::os::unix::net::SocketAddr;
 use std::path::{Path, PathBuf};
+use std::pin::Pin;
+use std::task::{Context, Poll};
 
 /// A Unix Datagram socket.
 #[derive(Debug)]

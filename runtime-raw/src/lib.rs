@@ -22,9 +22,9 @@ use futures::task::SpawnError;
 use std::cell::Cell;
 use std::io;
 use std::net::SocketAddr;
+use std::path::Path;
 use std::pin::Pin;
 use std::time::{Duration, Instant};
-use std::path::Path;
 
 mod tcp;
 mod time;

@@ -2,9 +2,9 @@ use std::fmt::Debug;
 use std::io;
 use std::net::Shutdown;
 use std::os::unix::net::SocketAddr;
+use std::path::PathBuf;
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use std::path::PathBuf;
 
 /// A UDP socket.
 pub trait UnixDatagram: Debug + Send {

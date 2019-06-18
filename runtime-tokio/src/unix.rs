@@ -1,9 +1,9 @@
 use std::io;
 use std::net::Shutdown;
 use std::os::unix::net::SocketAddr;
+use std::path::PathBuf;
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use std::path::PathBuf;
 
 #[derive(Debug)]
 pub(super) struct UnixDatagram {
