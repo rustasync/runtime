@@ -106,7 +106,7 @@ pub trait Runtime: Send + Sync + 'static {
     ///
     /// This method is defined on the `Runtime` trait because defining it on
     /// `UdpSocket` would prevent it from being a trait object.
-    fn bind_unix_datagram(&self, addr: &Path) -> io::Result<Pin<Box<dyn UnixDatagram>>>;
+    fn bind_unix_datagram(&self, path: &Path) -> io::Result<Pin<Box<dyn UnixDatagram>>>;
 
     /// Create a new Future that wakes up after the given duration
     ///
