@@ -39,6 +39,6 @@ impl runtime_raw::UnixDatagram for UnixDatagram {
     }
 
     fn shutdown(&self, how: Shutdown) -> io::Result<()> {
-        unimplemented!();
+        self.romio_datagram.shutdown(how)
     }
 }
