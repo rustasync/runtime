@@ -7,14 +7,17 @@ use std::io;
 use std::net::SocketAddr;
 use std::pin::Pin;
 use std::time::{Duration, Instant};
+use std::path::Path;
 
 mod tcp;
 mod time;
 mod udp;
+mod unix;
 
 use tcp::{TcpListener, TcpStream};
 use time::{Delay, Interval};
 use udp::UdpSocket;
+use unix::UnixDatagram;
 
 lazy_static! {
     static ref JULIEX_THREADPOOL: juliex::ThreadPool = {
@@ -61,6 +64,11 @@ impl runtime_raw::Runtime for Native {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let romio_socket = romio::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { romio_socket }))
+    }
+
+    fn bind_unix_datagram(&self, addr: &Path) -> io::Result<Pin<Box<dyn runtime_raw::UnixDatagram>>> {
+        let romio_datagram = romio::uds::UnixDatagram::bind(&addr)?;
+        Ok(Box::pin(UnixDatagram { romio_datagram }))
     }
 
     fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {

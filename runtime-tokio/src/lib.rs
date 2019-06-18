@@ -20,6 +20,7 @@ use tokio::timer::{Delay as TokioDelay, Interval as TokioInterval};
 
 use std::io;
 use std::net::SocketAddr;
+use std::path::Path;
 use std::pin::Pin;
 use std::sync::{mpsc, Mutex};
 use std::thread;
@@ -28,10 +29,12 @@ use std::time::{Duration, Instant};
 mod tcp;
 mod time;
 mod udp;
+mod unix;
 
 use tcp::{TcpListener, TcpStream};
 use time::{Delay, Interval};
 use udp::UdpSocket;
+use unix::*;
 
 /// The default Tokio runtime.
 #[derive(Debug)]
@@ -81,6 +84,14 @@ impl runtime_raw::Runtime for Tokio {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { tokio_socket }))
+    }
+
+    fn bind_unix_datagram(
+        &self,
+        addr: &Path,
+    ) -> io::Result<Pin<Box<dyn runtime_raw::UnixDatagram>>> {
+        let tokio_datagram = tokio::net::UnixDatagram::bind(&addr)?;
+        Ok(Box::pin(UnixDatagram { tokio_datagram }))
     }
 
     fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
@@ -161,6 +172,14 @@ impl runtime_raw::Runtime for TokioCurrentThread {
     ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
         let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
         Ok(Box::pin(UdpSocket { tokio_socket }))
+    }
+
+    fn bind_unix_datagram(
+        &self,
+        addr: &Path,
+    ) -> io::Result<Pin<Box<dyn runtime_raw::UnixDatagram>>> {
+        let tokio_datagram = tokio::net::UnixDatagram::bind(&addr)?;
+        Ok(Box::pin(UnixDatagram { tokio_datagram }))
     }
 
     fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
