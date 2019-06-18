@@ -12,31 +12,39 @@ pub(super) struct UnixDatagram {
 
 impl runtime_raw::UnixDatagram for UnixDatagram {
     fn local_addr(&self) -> io::Result<SocketAddr> {
-        unimplemented!();
+        self.tokio_datagram.local_addr()
     }
 
     fn peer_addr(&self) -> io::Result<SocketAddr> {
-        unimplemented!();
+        self.tokio_datagram.peer_addr()
     }
 
     fn poll_send_to(
         self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
+        _cx: &mut Context<'_>,
         buf: &[u8],
         receiver: &PathBuf,
     ) -> Poll<io::Result<usize>> {
-        unimplemented!();
+        let socket = unsafe { &mut self.get_unchecked_mut().tokio_datagram };
+        match socket.poll_send_to(&buf, &receiver)? {
+            futures01::Async::Ready(size) => Poll::Ready(Ok(size)),
+            futures01::Async::NotReady => Poll::Pending,
+        }
     }
 
     fn poll_recv_from(
         self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
+        _cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<(usize, SocketAddr)>> {
-        unimplemented!();
+        let socket = unsafe { &mut self.get_unchecked_mut().tokio_datagram };
+        match socket.poll_recv_from(buf)? {
+            futures01::Async::Ready((size, addr)) => Poll::Ready(Ok((size, addr))),
+            futures01::Async::NotReady => Poll::Pending,
+        }
     }
 
     fn shutdown(&self, how: Shutdown) -> io::Result<()> {
-        unimplemented!();
+        self.tokio_datagram.shutdown(how)
     }
 }
