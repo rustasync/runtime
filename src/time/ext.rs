@@ -15,12 +15,12 @@ use super::Delay;
 ///
 /// [`FutureExt.timeout`]: trait.FutureExt.html
 #[derive(Debug)]
-pub struct Timeout<F: Future + Unpin> {
+pub struct TimeoutFuture<F: Future + Unpin> {
     future: F,
     delay: Delay,
 }
 
-impl<F: Future + Unpin> Future for Timeout<F> {
+impl<F: Future + Unpin> Future for TimeoutFuture<F> {
     type Output = Result<F::Output, io::Error>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -69,8 +69,8 @@ pub trait FutureExt: Future + Sized + Unpin {
     ///     }
     /// }
     /// ```
-    fn timeout(self, dur: Duration) -> Timeout<Self> {
-        Timeout {
+    fn timeout(self, dur: Duration) -> TimeoutFuture<Self> {
+        TimeoutFuture {
             delay: Delay::new(dur),
             future: self,
         }
@@ -108,8 +108,8 @@ pub trait FutureExt: Future + Sized + Unpin {
     ///     }
     /// }
     /// ```
-    fn timeout_at(self, at: Instant) -> Timeout<Self> {
-        Timeout {
+    fn timeout_at(self, at: Instant) -> TimeoutFuture<Self> {
+        TimeoutFuture {
             delay: Delay::new_at(at),
             future: self,
         }
