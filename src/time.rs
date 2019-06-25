@@ -49,12 +49,9 @@
 //! ```
 
 mod delay;
+mod ext;
 mod interval;
 
-pub mod ext;
-
 pub use delay::*;
+pub use ext::*;
 pub use interval::*;
-
-#[doc(inline)]
-pub use ext::{FutureExt, StreamExt, AsyncReadExt};

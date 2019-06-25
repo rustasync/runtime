@@ -34,7 +34,9 @@ impl<F: Future + Unpin> Future for TimeoutFuture<F> {
     }
 }
 
-/// Extend `Future` with methods to time out execution.
+/// Extend [`Future`] with methods to time out execution.
+///
+/// [`Future`]: https://doc.rust-lang.org/std/future/trait.Future.html
 pub trait FutureExt: Future + Sized + Unpin {
     /// Creates a new future which will take at most `dur` time to resolve from
     /// the point at which this method is called.
@@ -147,7 +149,9 @@ impl<S: Stream + Unpin> Stream for TimeoutStream<S> {
     }
 }
 
-/// Extend `Stream` with methods to time out execution.
+/// Extend [`Stream`] with methods to time out execution.
+///
+/// [`Stream`]: https://docs.rs/futures-preview/0.3.0-alpha.16/futures/stream/trait.Stream.html
 pub trait StreamExt: Stream + Sized + Unpin {
     /// Creates a new stream which will take at most `dur` time to yield each
     /// item of the stream.
@@ -220,7 +224,9 @@ impl<S: AsyncRead + Unpin> AsyncRead for TimeoutAsyncRead<S> {
     }
 }
 
-/// Extend `AsyncRead` with methods to time out execution.
+/// Extend [`AsyncRead`] with methods to time out execution.
+///
+/// [`AsyncRead`]: https://docs.rs/futures-preview/0.3.0-alpha.16/futures/io/trait.AsyncRead.html?search=
 pub trait AsyncReadExt: AsyncRead + Sized + Unpin {
     /// Creates a new stream which will take at most `dur` time to yield each
     /// item of the stream.
