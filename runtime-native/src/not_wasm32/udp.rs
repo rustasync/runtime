@@ -1,4 +1,4 @@
-use async_datagram::AsyncDatagram;
+use romio::raw::AsyncDatagram;
 
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
