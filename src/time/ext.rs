@@ -28,7 +28,7 @@ impl<F: Future + Unpin> Future for Timeout<F> {
             return Poll::Ready(Ok(t));
         }
 
-        self.as_mut()
+        Pin::new(&mut self.delay)
             .poll(cx)
             .map(|_| Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out")))
     }
