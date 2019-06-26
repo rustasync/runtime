@@ -2,8 +2,48 @@
 
 use std::pin::Pin;
 
+use futures::future::FutureObj;
 use futures::prelude::*;
-use futures::task::{Context, Poll};
+use futures::task::{Context, Poll, Spawn, SpawnError};
+
+/// A [`Spawn`] handle to runtime's thread pool for spawning futures.
+///
+/// This allows integrating runtime with libraries based on explicitly passed spawners.
+#[derive(Debug)]
+pub struct Spawner {
+    _reserved: (),
+}
+
+impl Spawner {
+    /// Construct a new [`Spawn`] handle.
+    pub fn new() -> Self {
+        Self { _reserved: () }
+    }
+}
+
+impl Default for Spawner {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Clone for Spawner {
+    fn clone(&self) -> Self {
+        Self::new()
+    }
+}
+
+impl Spawn for Spawner {
+    fn spawn_obj(&mut self, future: FutureObj<'static, ()>) -> Result<(), SpawnError> {
+        (&*self).spawn_obj(future)
+    }
+}
+
+impl<'a> Spawn for &'a Spawner {
+    fn spawn_obj(&mut self, future: FutureObj<'static, ()>) -> Result<(), SpawnError> {
+        runtime_raw::current_runtime().spawn_boxed(future.boxed())
+    }
+}
 
 /// Spawn a future on the runtime's thread pool.
 ///
