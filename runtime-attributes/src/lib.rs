@@ -28,7 +28,14 @@ use syn::spanned::Spanned;
 #[proc_macro_attribute]
 pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     let rt = if attr.is_empty() {
-        syn::parse_str("runtime::native::Native").unwrap()
+        if cfg!(feature = "native") {
+            syn::parse_str("runtime::native::Native").unwrap()
+        } else {
+            let tokens = quote_spanned! { proc_macro2::Span::call_site() =>
+                compile_error!("async runtime needs to be specified if no default runtime is set");
+            };
+            return TokenStream::from(tokens);
+        }
     } else {
         syn::parse_macro_input!(attr as syn::Expr)
     };
@@ -86,7 +93,14 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     let rt = if attr.is_empty() {
-        syn::parse_str("runtime::native::Native").unwrap()
+        if cfg!(feature = "native") {
+            syn::parse_str("runtime::native::Native").unwrap()
+        } else {
+            let tokens = quote_spanned! { proc_macro2::Span::call_site() =>
+                compile_error!("async runtime needs to be specified if no default runtime is set");
+            };
+            return TokenStream::from(tokens);
+        }
     } else {
         syn::parse_macro_input!(attr as syn::Expr)
     };
@@ -132,7 +146,14 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
     let rt = if attr.is_empty() {
-        syn::parse_str("runtime::native::Native").unwrap()
+        if cfg!(feature = "native") {
+            syn::parse_str("runtime::native::Native").unwrap()
+        } else {
+            let tokens = quote_spanned! { proc_macro2::Span::call_site() =>
+                compile_error!("async runtime needs to be specified if no default runtime is set");
+            };
+            return TokenStream::from(tokens);
+        }
     } else {
         syn::parse_macro_input!(attr as syn::Expr)
     };
