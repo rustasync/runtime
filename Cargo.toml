@@ -28,7 +28,7 @@ futures01 = { package = "futures", version = "0.1" }
 futures-preview = { version = "0.3.0-alpha.16", features = ["nightly", "async-await"] }
 juliex = "0.3.0-alpha.6"
 mio = "0.6.16"
-rand = "0.6.5"
+rand = "0.7.0"
 runtime-tokio = { path = "runtime-tokio", version = "0.3.0-alpha.4" }
 tokio = "0.1.19"
 
