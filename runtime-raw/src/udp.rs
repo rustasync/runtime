@@ -5,7 +5,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 /// A UDP socket.
-pub trait UdpSocket: Debug + Send {
+pub trait UdpSocket: Debug + Send + Sync {
     /// Returns the local address that this listener is bound to.
     ///
     /// This can be useful, for example, when binding to port 0 to figure out
