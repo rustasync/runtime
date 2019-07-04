@@ -15,6 +15,10 @@ edition = "2018"
 [lib]
 proc-macro = true
 
+[features]
+default = ["native"]
+native = []
+
 [dependencies]
 syn = { version = "0.15.33", features = ["full"] }
 proc-macro2 = { version = "0.4.29", features = ["nightly"] }
