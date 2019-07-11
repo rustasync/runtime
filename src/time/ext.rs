@@ -155,7 +155,11 @@ impl<S: Stream> Stream for TimeoutStream<S> {
         // This pinning projection is safe.
         // See detail in `Timeout::poll`.
         let (mut timeout, dur, stream) = unsafe {
-            let TimeoutStream { timeout, dur, stream } = self.get_unchecked_mut();
+            let TimeoutStream {
+                timeout,
+                dur,
+                stream,
+            } = self.get_unchecked_mut();
             (Pin::new(timeout), Pin::new(dur), Pin::new_unchecked(stream))
         };
 
@@ -238,7 +242,11 @@ impl<S: AsyncRead> AsyncRead for TimeoutAsyncRead<S> {
         // This pinning projection is safe.
         // See detail in `Timeout::poll`.
         let (mut timeout, dur, stream) = unsafe {
-            let TimeoutAsyncRead { timeout, dur, stream } = self.get_unchecked_mut();
+            let TimeoutAsyncRead {
+                timeout,
+                dur,
+                stream,
+            } = self.get_unchecked_mut();
             (Pin::new(timeout), Pin::new(dur), Pin::new_unchecked(stream))
         };
 
