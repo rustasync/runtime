@@ -2,7 +2,6 @@
 
 use std::future::Future;
 use std::io;
-use std::marker::Unpin;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
@@ -15,27 +14,37 @@ use super::Delay;
 ///
 /// [`FutureExt.timeout`]: trait.FutureExt.html
 #[derive(Debug)]
-pub struct Timeout<F: Future + Unpin> {
+pub struct Timeout<F: Future> {
     future: F,
     delay: Delay,
 }
 
-impl<F: Future + Unpin> Future for Timeout<F> {
+impl<F: Future> Future for Timeout<F> {
     type Output = Result<F::Output, io::Error>;
 
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        if let Poll::Ready(t) = Pin::new(&mut self.future).poll(cx) {
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        // This pinning projection is safe because:
+        //   1. `Timeout` is only Unpin when `F` is Unpin. (Ok for default auto impl)
+        //   2. `drop` never moves out of `F`. (No manual `Drop` impl and no `#[repr(packed)]`)
+        //   3. `drop` on `F` must be called before overwritten or deallocated. (No manual `Drop` impl)
+        //   4. No other operation provided for moving out `F`. (Ok)
+        let (future, delay) = unsafe {
+            let Timeout { future, delay } = self.get_unchecked_mut();
+            (Pin::new_unchecked(future), Pin::new(delay))
+        };
+
+        if let Poll::Ready(t) = future.poll(cx) {
             return Poll::Ready(Ok(t));
         }
 
-        Pin::new(&mut self.delay)
+        delay
             .poll(cx)
             .map(|_| Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out")))
     }
 }
 
 /// Extend `Future` with methods to time out execution.
-pub trait FutureExt: Future + Sized + Unpin {
+pub trait FutureExt: Future + Sized {
     /// Creates a new future which will take at most `dur` time to resolve from
     /// the point at which this method is called.
     ///
@@ -116,29 +125,36 @@ pub trait FutureExt: Future + Sized + Unpin {
     }
 }
 
-impl<T: Future + Unpin> FutureExt for T {}
+impl<T: Future> FutureExt for T {}
 
 /// A stream returned by methods in the [`StreamExt`] trait.
 ///
 /// [`StreamExt`]: trait.StreamExt.html
 #[derive(Debug)]
-pub struct TimeoutStream<S: Stream + Unpin> {
+pub struct TimeoutStream<S: Stream> {
     timeout: Delay,
     dur: Duration,
     stream: S,
 }
 
-impl<S: Stream + Unpin> Stream for TimeoutStream<S> {
+impl<S: Stream> Stream for TimeoutStream<S> {
     type Item = Result<S::Item, io::Error>;
 
-    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        if let Poll::Ready(s) = Pin::new(&mut self.stream).poll_next(cx) {
-            self.timeout = Delay::new(self.dur);
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        // This pinning projection is safe.
+        // See detail in `Timeout::poll`.
+        let (mut timeout, dur, stream) = unsafe {
+            let TimeoutStream { timeout, dur, stream } = self.get_unchecked_mut();
+            (Pin::new(timeout), Pin::new(dur), Pin::new_unchecked(stream))
+        };
+
+        if let Poll::Ready(s) = stream.poll_next(cx) {
+            timeout.set(Delay::new(*dur));
             return Poll::Ready(Ok(s).transpose());
         }
 
-        Pin::new(&mut self.timeout).poll(cx).map(|_| {
-            self.timeout = Delay::new(self.dur);
+        Pin::new(&mut *timeout).poll(cx).map(|_| {
+            timeout.set(Delay::new(*dur));
             Some(Err(io::Error::new(
                 io::ErrorKind::TimedOut,
                 "future timed out",
@@ -148,7 +164,7 @@ impl<S: Stream + Unpin> Stream for TimeoutStream<S> {
 }
 
 /// Extend `Stream` with methods to time out execution.
-pub trait StreamExt: Stream + Sized + Unpin {
+pub trait StreamExt: Stream + Sized {
     /// Creates a new stream which will take at most `dur` time to yield each
     /// item of the stream.
     ///
@@ -190,38 +206,45 @@ pub trait StreamExt: Stream + Sized + Unpin {
     }
 }
 
-impl<S: Stream + Unpin> StreamExt for S {}
+impl<S: Stream> StreamExt for S {}
 
 /// A stream returned by methods in the [`StreamExt`] trait.
 ///
 /// [`StreamExt`]: trait.StreamExt.html
 #[derive(Debug)]
-pub struct TimeoutAsyncRead<S: AsyncRead + Unpin> {
+pub struct TimeoutAsyncRead<S: AsyncRead> {
     timeout: Delay,
     dur: Duration,
     stream: S,
 }
 
-impl<S: AsyncRead + Unpin> AsyncRead for TimeoutAsyncRead<S> {
+impl<S: AsyncRead> AsyncRead for TimeoutAsyncRead<S> {
     fn poll_read(
-        mut self: Pin<&mut Self>,
+        self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<Result<usize, io::Error>> {
-        if let Poll::Ready(s) = Pin::new(&mut self.stream).poll_read(cx, buf) {
-            self.timeout = Delay::new(self.dur);
+        // This pinning projection is safe.
+        // See detail in `Timeout::poll`.
+        let (mut timeout, dur, stream) = unsafe {
+            let TimeoutAsyncRead { timeout, dur, stream } = self.get_unchecked_mut();
+            (Pin::new(timeout), Pin::new(dur), Pin::new_unchecked(stream))
+        };
+
+        if let Poll::Ready(s) = stream.poll_read(cx, buf) {
+            timeout.set(Delay::new(*dur));
             return Poll::Ready(s);
         }
 
-        Pin::new(&mut self.timeout).poll(cx).map(|_| {
-            self.timeout = Delay::new(self.dur);
+        Pin::new(&mut *timeout).poll(cx).map(|_| {
+            timeout.set(Delay::new(*dur));
             Err(io::Error::new(io::ErrorKind::TimedOut, "future timed out"))
         })
     }
 }
 
 /// Extend `AsyncRead` with methods to time out execution.
-pub trait AsyncReadExt: AsyncRead + Sized + Unpin {
+pub trait AsyncReadExt: AsyncRead + Sized {
     /// Creates a new stream which will take at most `dur` time to yield each
     /// item of the stream.
     ///
@@ -260,4 +283,4 @@ pub trait AsyncReadExt: AsyncRead + Sized + Unpin {
     }
 }
 
-impl<S: AsyncRead + Unpin> AsyncReadExt for S {}
+impl<S: AsyncRead> AsyncReadExt for S {}

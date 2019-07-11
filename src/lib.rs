@@ -86,7 +86,6 @@
 //!   a work-stealing scheduler.
 
 #![feature(async_await)]
-#![deny(unsafe_code)]
 #![warn(
     missing_debug_implementations,
     missing_docs,
