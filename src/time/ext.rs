@@ -61,21 +61,32 @@ pub trait FutureExt: Future + Sized {
     /// # #![feature(async_await)]
     /// use futures::prelude::*;
     /// use runtime::prelude::*;
-    /// use std::time::Duration;
+    /// use std::time::{Duration, Instant};
     ///
-    /// # fn long_future() -> impl Future<Output = std::io::Result<()>> {
-    /// #     futures::future::ok(())
-    /// # }
-    /// #
+    /// async fn long_future(dur: Duration) {
+    ///     // Simulate some network operations...
+    ///     runtime::time::Delay::new(dur).await;
+    /// }
+    ///
     /// #[runtime::main]
     /// async fn main() {
-    ///     let future = long_future();
-    ///     let timed_out = future.timeout(Duration::from_millis(100));
+    ///     // Fast operation
+    ///     let begin_inst = Instant::now();
+    ///     let short = long_future(Duration::from_millis(100))
+    ///         .timeout(Duration::from_millis(5000)) // Set timeout
+    ///         .await;
+    ///     assert!(short.is_ok()); // Success
+    ///     assert!(begin_inst.elapsed() >= Duration::from_millis(100));
+    ///     assert!(begin_inst.elapsed() < Duration::from_millis(5000));
     ///
-    ///     match timed_out.await {
-    ///         Ok(item) => println!("got {:?} within enough time!", item),
-    ///         Err(_) => println!("took too long to produce the item"),
-    ///     }
+    ///     // Slow operation
+    ///     let begin_inst = Instant::now();
+    ///     let long = long_future(Duration::from_millis(5000))
+    ///         .timeout(Duration::from_millis(100)) // Set timeout
+    ///         .await;
+    ///     assert!(long.is_err()); // Timeout
+    ///     assert!(begin_inst.elapsed() >= Duration::from_millis(100));
+    ///     assert!(begin_inst.elapsed() < Duration::from_millis(5000));
     /// }
     /// ```
     fn timeout(self, dur: Duration) -> Timeout<Self> {
