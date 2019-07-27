@@ -14,7 +14,6 @@
     rust_2018_idioms
 )]
 
-use futures::executor;
 use futures::future::BoxFuture;
 use futures::prelude::*;
 use futures::task::SpawnError;
@@ -43,34 +42,39 @@ pub fn current_runtime() -> &'static dyn Runtime {
     RUNTIME.with(|r| r.get().expect("the runtime has not been set"))
 }
 
-/// Set the current runtime.
+/// Run passed function while passed runtime is set as current runtime.
+pub fn enter_runtime<F, R>(runtime: &'static dyn Runtime, f: F) -> R
+where
+    F: FnOnce() -> R
+{
+    RUNTIME.with(move |r| {
+        assert!(r.get().is_none(), "the runtime has already been set");
+
+        struct Cleanup<'a>(&'a Cell<Option<&'static dyn Runtime>>);
+        impl Drop for Cleanup<'_> {
+            fn drop(&mut self) {
+                self.0.set(None);
+            }
+        }
+        let _cleanup = Cleanup(r);
+
+        r.set(Some(runtime));
+        f()
+    })
+}
+
+/// Set the current runtime (per thread).
 ///
 /// This function must be called at the beginning of runtime's threads before they start polling
 /// any futures.
+///
+/// Setting the runtime can't be undone or changed again; use `enter_runtime` instead to only set
+/// it for a scope.
 pub fn set_runtime(runtime: &'static dyn Runtime) {
     RUNTIME.with(|r| {
         assert!(r.get().is_none(), "the runtime has already been set");
         r.set(Some(runtime))
     });
-}
-
-/// Runs a future inside a runtime and blocks on the result.
-pub fn enter<R, F, T>(rt: R, fut: F) -> T
-where
-    R: Runtime,
-    F: Future<Output = T> + Send + 'static,
-    T: Send + 'static,
-{
-    let (tx, rx) = futures::channel::oneshot::channel();
-
-    let fut = async move {
-        let t = fut.await;
-        let _ = tx.send(t);
-    };
-
-    rt.spawn_boxed(fut.boxed()).expect("cannot spawn a future");
-
-    executor::block_on(rx).expect("the main future has panicked")
 }
 
 /// The runtime trait.
@@ -116,4 +120,25 @@ pub trait Runtime: Send + Sync + 'static {
     /// This method is defined on the `Runtime` trait because defining it on
     /// `Interval` would prevent it from being a trait object.
     fn new_interval(&self, dur: Duration) -> Pin<Box<dyn Interval>>;
+}
+
+/// Runtime trait for runtimes supporting blocking.
+pub trait BlockingRuntime<F, T>
+where
+    F: Future<Output = T>,
+{
+    /// Runs a future inside the runtime and blocks on the result.
+    ///
+    /// Needs to call `enter_runtime` or `set_runtime` (only on background threads) in threads
+    /// running futures.
+    fn block_on(&self, fut: F) -> T;
+}
+
+/// Runs a future inside a runtime and blocks on the result.
+pub fn enter<R, F, T>(rt: R, fut: F) -> T
+where
+    R: BlockingRuntime<F, T>,
+    F: Future<Output = T>,
+{
+    rt.block_on(fut)
 }

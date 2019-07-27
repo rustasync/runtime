@@ -1,7 +1,6 @@
 use futures::prelude::*;
-use futures::{future::BoxFuture, task::SpawnError};
+use futures::{executor, future::BoxFuture, task::SpawnError};
 use futures_timer::{Delay as AsyncDelay, Interval as AsyncInterval};
-use lazy_static::lazy_static;
 
 use std::io;
 use std::net::SocketAddr;
@@ -16,21 +15,13 @@ use tcp::{TcpListener, TcpStream};
 use time::{Delay, Interval};
 use udp::UdpSocket;
 
-lazy_static! {
-    static ref JULIEX_THREADPOOL: juliex::ThreadPool = {
-        juliex::ThreadPool::with_setup(|| {
-            runtime_raw::set_runtime(&Native);
-        })
-    };
-}
-
 /// The Native runtime.
 #[derive(Debug)]
 pub struct Native;
 
 impl runtime_raw::Runtime for Native {
     fn spawn_boxed(&self, fut: BoxFuture<'static, ()>) -> Result<(), SpawnError> {
-        JULIEX_THREADPOOL.spawn_boxed(fut.into());
+        juliex::spawn(fut);
         Ok(())
     }
 
@@ -76,5 +67,23 @@ impl runtime_raw::Runtime for Native {
     fn new_interval(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
         let async_interval = AsyncInterval::new(dur);
         Box::pin(Interval { async_interval })
+    }
+}
+
+impl<F, T> runtime_raw::BlockingRuntime<F, T> for Native
+where
+    F: Future<Output = T> + Send + 'static,
+    T: Send + 'static,
+{
+    fn block_on(&self, fut: F) -> T {
+        let pool = juliex::ThreadPool::with_setup(|| {
+            runtime_raw::set_runtime(&Native);
+        });
+
+        let (fut, handle) = fut.remote_handle();
+
+        pool.spawn(fut);
+
+        executor::block_on(handle)
     }
 }
