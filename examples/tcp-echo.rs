@@ -18,7 +18,7 @@ async fn main() -> std::io::Result<()> {
         .incoming()
         .try_for_each_concurrent(None, |stream| {
             async move {
-                runtime::spawn(async move {
+                runtime::task::spawn_remote(async move {
                     println!("Accepting from: {}", stream.peer_addr()?);
 
                     let (reader, writer) = &mut stream.split();

@@ -4,7 +4,7 @@ use runtime_native::Native;
 
 #[runtime::test(Native)]
 async fn spawn() {
-    let handle = runtime::spawn(async {
+    let handle = runtime::task::spawn_remote(async {
         println!("hello planet from Native");
         42
     });

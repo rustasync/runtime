@@ -65,7 +65,7 @@ async fn main() -> Result<(), failure::Error> {
     incoming
         .try_for_each_concurrent(None, |stream| {
             async move {
-                runtime::spawn(play(stream)).await?;
+                runtime::task::spawn_remote(play(stream)).await?;
                 Ok::<(), failure::Error>(())
             }
         })

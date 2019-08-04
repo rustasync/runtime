@@ -16,7 +16,7 @@ async fn main() -> std::io::Result<()> {
         .incoming()
         .try_for_each_concurrent(None, |client| {
             async move {
-                runtime::spawn(async move {
+                runtime::task::spawn_remote(async move {
                     let server = TcpStream::connect("127.0.0.1:8080").await?;
                     println!(
                         "Proxying {} to {}",

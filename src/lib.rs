@@ -121,9 +121,6 @@ pub mod prelude {
 }
 
 #[doc(inline)]
-pub use task::spawn;
-
-#[doc(inline)]
 pub use runtime_attributes::{bench, test};
 
 #[doc(inline)]
