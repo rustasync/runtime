@@ -4,6 +4,7 @@ extern crate test;
 
 mod baseline {
     use futures::executor;
+    use futures::future::RemoteHandle;
     use futures::prelude::*;
     use std::pin::Pin;
     use std::task::{Context, Poll};
@@ -113,38 +114,15 @@ mod baseline {
     }
 
     /// Spawn function for juliex to get back a handle
-    pub fn spawn<F, T>(fut: F) -> JoinHandle<T>
+    pub fn spawn<F, T>(fut: F) -> RemoteHandle<T>
     where
         F: Future<Output = T> + Send + 'static,
         T: Send + 'static,
     {
-        let (tx, rx) = futures::channel::oneshot::channel();
-
-        let fut = async move {
-            let t = fut.await;
-            let _ = tx.send(t);
-        };
+        let (fut, handle) = fut.remote_handle();
 
         juliex::spawn(fut);
-        JoinHandle { rx }
-    }
 
-    /// Handle returned from Juliex.
-    // We should patch Juliex to support this natively, and be more efficient on channel use.
-    #[derive(Debug)]
-    pub struct JoinHandle<T> {
-        pub(crate) rx: futures::channel::oneshot::Receiver<T>,
-    }
-
-    impl<T> Future for JoinHandle<T> {
-        type Output = T;
-
-        fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-            match self.rx.poll_unpin(cx) {
-                Poll::Pending => Poll::Pending,
-                Poll::Ready(Ok(t)) => Poll::Ready(t),
-                Poll::Ready(Err(_)) => panic!(), // TODO: Is this OK? Print a better error message?
-            }
-        }
+        handle
     }
 }

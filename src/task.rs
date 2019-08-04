@@ -1,10 +1,8 @@
 //! Types and Functions for working with asynchronous tasks.
 
-use std::pin::Pin;
-
-use futures::future::FutureObj;
+use futures::future::{FutureObj, RemoteHandle};
 use futures::prelude::*;
-use futures::task::{Context, Poll, Spawn, SpawnError};
+use futures::task::{Spawn, SpawnError};
 
 /// A [`Spawn`] handle to runtime's thread pool for spawning futures.
 ///
@@ -63,42 +61,16 @@ impl<'a> Spawn for &'a Spawner {
 ///     assert_eq!(handle.await, 42);
 /// }
 /// ```
-pub fn spawn<F, T>(fut: F) -> JoinHandle<T>
+pub fn spawn<F, T>(fut: F) -> RemoteHandle<T>
 where
     F: Future<Output = T> + Send + 'static,
     T: Send + 'static,
 {
-    let (tx, rx) = futures::channel::oneshot::channel();
-
-    let fut = async move {
-        let t = fut.await;
-        let _ = tx.send(t);
-    };
+    let (fut, handle) = fut.remote_handle();
 
     runtime_raw::current_runtime()
         .spawn_boxed(fut.boxed())
         .expect("cannot spawn a future");
 
-    JoinHandle { rx }
-}
-
-/// A handle that awaits the result of a [`spawn`]ed future.
-///
-/// [`spawn`]: fn.spawn.html
-#[must_use = "futures do nothing unless you `.await` or poll them"]
-#[derive(Debug)]
-pub struct JoinHandle<T> {
-    pub(crate) rx: futures::channel::oneshot::Receiver<T>,
-}
-
-impl<T> Future for JoinHandle<T> {
-    type Output = T;
-
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        match self.rx.poll_unpin(cx) {
-            Poll::Pending => Poll::Pending,
-            Poll::Ready(Ok(t)) => Poll::Ready(t),
-            Poll::Ready(Err(_)) => panic!(), // TODO: Is this OK? Print a better error message?
-        }
-    }
+    handle
 }
