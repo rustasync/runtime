@@ -83,7 +83,7 @@ macro_rules! benchmark_suite {
                                 }
                             }))
                             .map(|_: Result<(), ()>| ()),
-                        )
+                        ).await
                     })
                 })
                 .collect::<Vec<_>>();

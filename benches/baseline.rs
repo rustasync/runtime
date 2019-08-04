@@ -101,7 +101,7 @@ mod baseline {
                                     }
                                 }))
                                 .map(|_: Result<(), ()>| ()),
-                            )
+                            ).await
                         })
                     })
                     .collect::<Vec<_>>();
