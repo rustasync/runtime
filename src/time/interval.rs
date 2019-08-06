@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 /// A stream representing notifications at a fixed interval.
 #[must_use = "streams do nothing unless polled"]
 pub struct Interval {
-    inner: Pin<Box<dyn runtime_raw::Interval>>,
+    inner: runtime_raw::BoxInterval,
 }
 
 impl Interval {

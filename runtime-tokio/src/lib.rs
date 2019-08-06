@@ -2,6 +2,7 @@
 //! [Runtime](https://github.com/rustasync/runtime). See the [Runtime
 //! documentation](https://docs.rs/runtime) for more details.
 
+#![feature(type_alias_impl_trait)]
 #![warn(
     missing_debug_implementations,
     missing_docs,
@@ -11,7 +12,7 @@
 
 use futures::{
     compat::Future01CompatExt,
-    future::{BoxFuture, FutureExt, TryFutureExt},
+    future::{BoxFuture, Future, FutureExt, TryFutureExt},
     task::SpawnError,
 };
 use lazy_static::lazy_static;
@@ -19,7 +20,6 @@ use tokio::timer::{Delay as TokioDelay, Interval as TokioInterval};
 
 use std::io;
 use std::net::SocketAddr;
-use std::pin::Pin;
 use std::sync::{mpsc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -28,21 +28,42 @@ mod tcp;
 mod time;
 mod udp;
 
-use tcp::{TcpListener, TcpStream};
-use time::{Delay, Interval};
-use udp::UdpSocket;
-
 /// The default Tokio runtime.
 #[derive(Debug)]
 pub struct Tokio;
 
+#[derive(Debug)]
+struct Compat<T>(T);
+
+impl<T> Compat<T> {
+    fn new(inner: T) -> Self {
+        Self(inner)
+    }
+
+    fn get_ref(&self) -> &T {
+        &self.0
+    }
+
+    fn get_mut(&mut self) -> &mut T {
+        &mut self.0
+    }
+}
+
 impl runtime_raw::Runtime for Tokio {
+    type TcpStream = impl runtime_raw::TcpStream;
+    type TcpListener = impl runtime_raw::TcpListener<TcpStream = Self::TcpStream>;
+    type UdpSocket = impl runtime_raw::UdpSocket;
+    type Delay = impl runtime_raw::Delay;
+    type Interval = impl runtime_raw::Interval;
+
+    type ConnectTcpStream = impl Future<Output = io::Result<Self::TcpStream>> + Send;
+
     fn spawn_boxed(&self, fut: BoxFuture<'static, ()>) -> Result<(), SpawnError> {
         lazy_static! {
             static ref TOKIO_RUNTIME: tokio::runtime::Runtime = {
                 tokio::runtime::Builder::new()
                     .after_start(|| {
-                        runtime_raw::set_runtime(&Tokio);
+                        runtime_raw::set_runtime(Tokio);
                     })
                     .build()
                     .unwrap()
@@ -53,48 +74,32 @@ impl runtime_raw::Runtime for Tokio {
         Ok(())
     }
 
-    fn connect_tcp_stream(
-        &self,
-        addr: &SocketAddr,
-    ) -> BoxFuture<'static, io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
+    fn connect_tcp_stream(&self, addr: &SocketAddr) -> Self::ConnectTcpStream {
         use futures01::Future;
 
-        let tokio_connect = tokio::net::TcpStream::connect(addr);
-        let connect = tokio_connect.map(|tokio_stream| {
-            Box::pin(TcpStream { tokio_stream }) as Pin<Box<dyn runtime_raw::TcpStream>>
-        });
-        connect.compat().boxed()
+        tokio::net::TcpStream::connect(addr)
+            .map(Compat::new)
+            .compat()
     }
 
-    fn bind_tcp_listener(
-        &self,
-        addr: &SocketAddr,
-    ) -> io::Result<Pin<Box<dyn runtime_raw::TcpListener>>> {
-        let tokio_listener = tokio::net::TcpListener::bind(&addr)?;
-        Ok(Box::pin(TcpListener { tokio_listener }))
+    fn bind_tcp_listener(&self, addr: &SocketAddr) -> io::Result<Self::TcpListener> {
+        tokio::net::TcpListener::bind(&addr).map(Compat::new)
     }
 
-    fn bind_udp_socket(
-        &self,
-        addr: &SocketAddr,
-    ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
-        let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
-        Ok(Box::pin(UdpSocket { tokio_socket }))
+    fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Self::UdpSocket> {
+        tokio::net::UdpSocket::bind(&addr).map(Compat::new)
     }
 
-    fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
-        let tokio_delay = TokioDelay::new(Instant::now() + dur);
-        Box::pin(Delay { tokio_delay })
+    fn new_delay(&self, dur: Duration) -> Self::Delay {
+        Compat::new(TokioDelay::new(Instant::now() + dur))
     }
 
-    fn new_delay_at(&self, at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
-        let tokio_delay = TokioDelay::new(at);
-        Box::pin(Delay { tokio_delay })
+    fn new_delay_at(&self, at: Instant) -> Self::Delay {
+        Compat::new(TokioDelay::new(at))
     }
 
-    fn new_interval(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
-        let tokio_interval = TokioInterval::new(Instant::now(), dur);
-        Box::pin(Interval { tokio_interval })
+    fn new_interval(&self, dur: Duration) -> Self::Interval {
+        Compat::new(TokioInterval::new(Instant::now(), dur))
     }
 }
 
@@ -103,6 +108,14 @@ impl runtime_raw::Runtime for Tokio {
 pub struct TokioCurrentThread;
 
 impl runtime_raw::Runtime for TokioCurrentThread {
+    type TcpStream = impl runtime_raw::TcpStream;
+    type TcpListener = impl runtime_raw::TcpListener<TcpStream = Self::TcpStream>;
+    type UdpSocket = impl runtime_raw::UdpSocket;
+    type Delay = impl runtime_raw::Delay;
+    type Interval = impl runtime_raw::Interval;
+
+    type ConnectTcpStream = impl Future<Output = io::Result<Self::TcpStream>> + Send;
+
     fn spawn_boxed(&self, fut: BoxFuture<'static, ()>) -> Result<(), SpawnError> {
         lazy_static! {
             static ref TOKIO_RUNTIME: Mutex<tokio::runtime::current_thread::Handle> = {
@@ -113,7 +126,7 @@ impl runtime_raw::Runtime for TokioCurrentThread {
                     let handle = rt.handle();
                     tx.send(handle).unwrap();
 
-                    runtime_raw::set_runtime(&TokioCurrentThread);
+                    runtime_raw::set_runtime(TokioCurrentThread);
                     let forever = futures01::future::poll_fn(|| {
                         Ok::<futures01::Async<()>, ()>(futures01::Async::NotReady)
                     });
@@ -133,47 +146,31 @@ impl runtime_raw::Runtime for TokioCurrentThread {
         Ok(())
     }
 
-    fn connect_tcp_stream(
-        &self,
-        addr: &SocketAddr,
-    ) -> BoxFuture<'static, io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
+    fn connect_tcp_stream(&self, addr: &SocketAddr) -> Self::ConnectTcpStream {
         use futures01::Future;
 
-        let tokio_connect = tokio::net::TcpStream::connect(addr);
-        let connect = tokio_connect.map(|tokio_stream| {
-            Box::pin(TcpStream { tokio_stream }) as Pin<Box<dyn runtime_raw::TcpStream>>
-        });
-        connect.compat().boxed()
+        tokio::net::TcpStream::connect(addr)
+            .map(Compat::new)
+            .compat()
     }
 
-    fn bind_tcp_listener(
-        &self,
-        addr: &SocketAddr,
-    ) -> io::Result<Pin<Box<dyn runtime_raw::TcpListener>>> {
-        let tokio_listener = tokio::net::TcpListener::bind(&addr)?;
-        Ok(Box::pin(TcpListener { tokio_listener }))
+    fn bind_tcp_listener(&self, addr: &SocketAddr) -> io::Result<Self::TcpListener> {
+        tokio::net::TcpListener::bind(&addr).map(Compat::new)
     }
 
-    fn bind_udp_socket(
-        &self,
-        addr: &SocketAddr,
-    ) -> io::Result<Pin<Box<dyn runtime_raw::UdpSocket>>> {
-        let tokio_socket = tokio::net::UdpSocket::bind(&addr)?;
-        Ok(Box::pin(UdpSocket { tokio_socket }))
+    fn bind_udp_socket(&self, addr: &SocketAddr) -> io::Result<Self::UdpSocket> {
+        tokio::net::UdpSocket::bind(&addr).map(Compat::new)
     }
 
-    fn new_delay(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Delay>> {
-        let tokio_delay = TokioDelay::new(Instant::now() + dur);
-        Box::pin(Delay { tokio_delay })
+    fn new_delay(&self, dur: Duration) -> Self::Delay {
+        Compat::new(TokioDelay::new(Instant::now() + dur))
     }
 
-    fn new_delay_at(&self, at: Instant) -> Pin<Box<dyn runtime_raw::Delay>> {
-        let tokio_delay = TokioDelay::new(at);
-        Box::pin(Delay { tokio_delay })
+    fn new_delay_at(&self, at: Instant) -> Self::Delay {
+        Compat::new(TokioDelay::new(at))
     }
 
-    fn new_interval(&self, dur: Duration) -> Pin<Box<dyn runtime_raw::Interval>> {
-        let tokio_interval = TokioInterval::new(Instant::now(), dur);
-        Box::pin(Interval { tokio_interval })
+    fn new_interval(&self, dur: Duration) -> Self::Interval {
+        Compat::new(TokioInterval::new(Instant::now(), dur))
     }
 }

@@ -1,6 +1,7 @@
 //! A cross-platform asynchronous [Runtime](https://github.com/rustasync/runtime). See the [Runtime
 //! documentation](https://docs.rs/runtime) for more details.
 
+#![feature(type_alias_impl_trait)]
 #![deny(unsafe_code)]
 #![warn(
     missing_debug_implementations,

@@ -67,7 +67,7 @@ use futures::task::{Context, Poll};
 /// ```
 #[derive(Debug)]
 pub struct TcpStream {
-    inner: Pin<Box<dyn runtime_raw::TcpStream>>,
+    inner: runtime_raw::BoxTcpStream,
 }
 
 impl TcpStream {
@@ -214,8 +214,8 @@ impl AsyncWrite for TcpStream {
 pub struct ConnectFuture {
     addrs: Option<io::Result<VecDeque<SocketAddr>>>,
     last_err: Option<io::Error>,
-    future: Option<BoxFuture<'static, io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>>>,
-    runtime: &'static dyn runtime_raw::Runtime,
+    future: Option<BoxFuture<'static, io::Result<runtime_raw::BoxTcpStream>>>,
+    runtime: &'static runtime_raw::DynRuntime,
 }
 
 impl Future for ConnectFuture {
@@ -309,7 +309,7 @@ impl fmt::Debug for ConnectFuture {
 /// ```
 #[derive(Debug)]
 pub struct TcpListener {
-    inner: Pin<Box<dyn runtime_raw::TcpListener>>,
+    inner: runtime_raw::BoxTcpListener,
 }
 
 impl TcpListener {

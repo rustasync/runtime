@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 /// A future representing the notification that an elapsed duration has occurred.
 #[must_use = "futures do nothing unless awaited"]
 pub struct Delay {
-    inner: Pin<Box<dyn runtime_raw::Delay>>,
+    inner: runtime_raw::BoxDelay,
 }
 
 impl Delay {
