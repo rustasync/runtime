@@ -16,7 +16,6 @@ pub struct Native;
 
 impl runtime_raw::Runtime for Native {
     fn spawn_boxed(&self, fut: BoxFuture<'static, ()>) -> Result<(), SpawnError> {
-        use futures01::future::Future;
         let fut = fut.unit_error().compat();
         wasm_bindgen_futures::spawn_local(fut);
         Ok(())

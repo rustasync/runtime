@@ -1,5 +1,5 @@
 use futures::prelude::*;
-use romio::raw::{AsyncReadReady, AsyncReady, AsyncWriteReady};
+use romio::raw::AsyncReady;
 
 use std::io;
 use std::net::SocketAddr;
@@ -17,18 +17,6 @@ pub(crate) struct TcpListener {
 }
 
 impl runtime_raw::TcpStream for TcpStream {
-    fn poll_write_ready(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.romio_stream)
-            .poll_write_ready(cx)
-            .map_ok(|_| ())
-    }
-
-    fn poll_read_ready(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.romio_stream)
-            .poll_read_ready(cx)
-            .map_ok(|_| ())
-    }
-
     fn take_error(&self) -> io::Result<Option<io::Error>> {
         Ok(None)
     }

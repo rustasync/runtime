@@ -1,4 +1,4 @@
-use futures01;
+use futures::prelude::*;
 
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
@@ -17,27 +17,21 @@ impl runtime_raw::UdpSocket for UdpSocket {
 
     fn poll_send_to(
         self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
+        cx: &mut Context<'_>,
         buf: &[u8],
         receiver: &SocketAddr,
     ) -> Poll<io::Result<usize>> {
         let socket = unsafe { &mut self.get_unchecked_mut().tokio_socket };
-        match socket.poll_send_to(&buf, &receiver)? {
-            futures01::Async::Ready(size) => Poll::Ready(Ok(size)),
-            futures01::Async::NotReady => Poll::Pending,
-        }
+        Pin::new(&mut socket.send_to(&buf, &receiver).boxed()).poll(cx)
     }
 
     fn poll_recv_from(
         self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
+        cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<(usize, SocketAddr)>> {
         let socket = unsafe { &mut self.get_unchecked_mut().tokio_socket };
-        match socket.poll_recv_from(buf)? {
-            futures01::Async::Ready((size, addr)) => Poll::Ready(Ok((size, addr))),
-            futures01::Async::NotReady => Poll::Pending,
-        }
+        Pin::new(&mut socket.recv_from(buf).boxed()).poll(cx)
     }
 
     /// Gets the value of the `SO_BROADCAST` option for this socket.
@@ -92,7 +86,7 @@ impl runtime_raw::UdpSocket for UdpSocket {
 
     /// Executes an operation of the `IP_ADD_MEMBERSHIP` type.
     fn join_multicast_v4(&self, multiaddr: &Ipv4Addr, interface: &Ipv4Addr) -> io::Result<()> {
-        self.tokio_socket.join_multicast_v4(multiaddr, interface)
+        self.tokio_socket.join_multicast_v4(*multiaddr, *interface)
     }
 
     /// Executes an operation of the `IPV6_ADD_MEMBERSHIP` type.
@@ -102,7 +96,7 @@ impl runtime_raw::UdpSocket for UdpSocket {
 
     /// Executes an operation of the `IP_DROP_MEMBERSHIP` type.
     fn leave_multicast_v4(&self, multiaddr: &Ipv4Addr, interface: &Ipv4Addr) -> io::Result<()> {
-        self.tokio_socket.leave_multicast_v4(multiaddr, interface)
+        self.tokio_socket.leave_multicast_v4(*multiaddr, *interface)
     }
 
     /// Executes an operation of the `IPV6_DROP_MEMBERSHIP` type.

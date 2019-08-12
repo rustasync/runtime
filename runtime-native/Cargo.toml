@@ -24,6 +24,5 @@ romio = "0.3.0-alpha.9"
 futures-timer = "0.3.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-futures01 = { package = "futures", version = "0.1" }
 wasm-bindgen = "0.2.43"
 wasm-bindgen-futures = "0.3.20"

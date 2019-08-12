@@ -2,7 +2,6 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::Instant;
 
-use futures::compat::Compat01As03;
 use futures::prelude::*;
 use tokio::timer::{Delay as TokioDelay, Interval as TokioInterval};
 
@@ -18,8 +17,7 @@ impl Future for Delay {
 
     #[inline]
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let mut fut = Compat01As03::new(&mut self.tokio_delay);
-        futures::ready!(Pin::new(&mut fut).poll(cx)).unwrap();
+        futures::ready!(Pin::new(&mut self.tokio_delay).poll(cx));
         Poll::Ready(Instant::now())
     }
 }
@@ -36,11 +34,7 @@ impl Stream for Interval {
 
     #[inline]
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let mut stream = Compat01As03::new(&mut self.tokio_interval);
         // https://docs.rs/tokio/0.1.20/tokio/timer/struct.Error.html
-        futures::ready!(Pin::new(&mut stream).poll_next(cx))
-            .unwrap()
-            .unwrap();
-        Poll::Ready(Some(Instant::now()))
+        Pin::new(&mut self.tokio_interval).poll_next(cx)
     }
 }

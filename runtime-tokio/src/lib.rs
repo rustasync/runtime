@@ -11,7 +11,6 @@
 )]
 
 use futures::{
-    compat::Future01CompatExt,
     future::{BoxFuture, FutureExt, TryFutureExt},
     task::SpawnError,
 };
@@ -50,7 +49,7 @@ impl runtime_raw::Runtime for Tokio {
             };
         }
 
-        TOKIO_RUNTIME.executor().spawn(fut.unit_error().compat());
+        TOKIO_RUNTIME.executor().spawn(fut);
         Ok(())
     }
 
@@ -58,13 +57,11 @@ impl runtime_raw::Runtime for Tokio {
         &self,
         addr: &SocketAddr,
     ) -> BoxFuture<'static, io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
-        use futures01::Future;
-
         let tokio_connect = tokio::net::TcpStream::connect(addr);
-        let connect = tokio_connect.map(|tokio_stream| {
+        let connect = tokio_connect.map_ok(|tokio_stream| {
             Box::pin(TcpStream { tokio_stream }) as Pin<Box<dyn runtime_raw::TcpStream>>
         });
-        connect.compat().boxed()
+        connect.boxed()
     }
 
     fn bind_tcp_listener(
@@ -115,10 +112,7 @@ impl runtime_raw::Runtime for TokioCurrentThread {
                     tx.send(handle).unwrap();
 
                     runtime_raw::set_runtime(&TokioCurrentThread);
-                    let forever = futures01::future::poll_fn(|| {
-                        Ok::<futures01::Async<()>, ()>(futures01::Async::NotReady)
-                    });
-                    rt.block_on(forever).unwrap();
+                    rt.block_on(futures::future::pending::<()>());
                 });
 
                 let handle = rx.recv().unwrap();
@@ -126,11 +120,7 @@ impl runtime_raw::Runtime for TokioCurrentThread {
             };
         }
 
-        TOKIO_RUNTIME
-            .lock()
-            .unwrap()
-            .spawn(fut.unit_error().compat())
-            .unwrap();
+        TOKIO_RUNTIME.lock().unwrap().spawn(fut).unwrap();
         Ok(())
     }
 
@@ -138,13 +128,11 @@ impl runtime_raw::Runtime for TokioCurrentThread {
         &self,
         addr: &SocketAddr,
     ) -> BoxFuture<'static, io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
-        use futures01::Future;
-
         let tokio_connect = tokio::net::TcpStream::connect(addr);
-        let connect = tokio_connect.map(|tokio_stream| {
+        let connect = tokio_connect.map_ok(|tokio_stream| {
             Box::pin(TcpStream { tokio_stream }) as Pin<Box<dyn runtime_raw::TcpStream>>
         });
-        connect.compat().boxed()
+        connect.boxed()
     }
 
     fn bind_tcp_listener(

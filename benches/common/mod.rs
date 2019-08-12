@@ -54,9 +54,7 @@ macro_rules! benchmark_suite {
 
         #[runtime::bench($rt)]
         async fn poll_reactor() {
-            use futures::compat::Compat01As03;
-            use futures::future::FutureExt;
-            use futures01::{future, Async};
+            use std::task::Poll;
             use tokio::reactor::Registration;
 
             let tasks = (0..300)
@@ -69,21 +67,18 @@ macro_rules! benchmark_suite {
                         let mut depth = 0;
                         let mut capture = Some(r);
 
-                        runtime::spawn(
-                            Compat01As03::new(future::poll_fn(move || loop {
-                                if registration.poll_read_ready().unwrap().is_ready() {
-                                    depth += 1;
-                                    if depth == 300 {
-                                        capture.take().unwrap();
-                                        return Ok(Async::Ready(()));
-                                    }
-                                } else {
-                                    s.set_readiness(mio::Ready::readable()).unwrap();
-                                    return Ok(Async::NotReady);
+                        runtime::spawn(futures::future::poll_fn(move |cx| loop {
+                            if registration.poll_read_ready(cx).is_ready() {
+                                depth += 1;
+                                if depth == 300 {
+                                    capture.take().unwrap();
+                                    return Poll::Ready(());
                                 }
-                            }))
-                            .map(|_: Result<(), ()>| ()),
-                        )
+                            } else {
+                                s.set_readiness(mio::Ready::readable()).unwrap();
+                                return Poll::Pending;
+                            }
+                        }))
                     })
                 })
                 .collect::<Vec<_>>();

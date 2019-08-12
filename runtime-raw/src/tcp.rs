@@ -8,12 +8,6 @@ use std::pin::Pin;
 
 /// A TcpStream for this Runtime
 pub trait TcpStream: AsyncRead + AsyncWrite + Debug + Send {
-    /// Check if the stream can be written to.
-    fn poll_write_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>>;
-
-    /// Check if the stream can be read from.
-    fn poll_read_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>>;
-
     /// Check if any socket errors exist on the `TcpStream`.
     ///
     /// Checking for socket errors is fallible, which is why the outer type is
