@@ -20,7 +20,7 @@ default = ["native"]
 native = []
 
 [dependencies]
-syn = { version = "0.15.33", features = ["full"] }
+syn = { version = "1.0.1", features = ["full"] }
 proc-macro2 = { version = "0.4.29", features = ["nightly"] }
 quote = "0.6.12"
 
