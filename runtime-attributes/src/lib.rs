@@ -41,9 +41,9 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     };
     let input = syn::parse_macro_input!(item as syn::ItemFn);
 
-    let ret = &input.decl.output;
-    let inputs = &input.decl.inputs;
-    let name = &input.ident;
+    let ret = &input.sig.output;
+    let args = input.sig.inputs.iter();
+    let name = &input.sig.ident;
     let body = &input.block;
     let attrs = &input.attrs;
 
@@ -54,7 +54,7 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
         return TokenStream::from(tokens);
     }
 
-    if input.asyncness.is_none() {
+    if input.sig.asyncness.is_none() {
         let tokens = quote_spanned! { input.span() =>
           compile_error!("the async keyword is missing from the function declaration");
         };
@@ -64,7 +64,7 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     let result = quote! {
         fn main() #ret {
             #(#attrs)*
-            async fn main(#(#inputs),*) #ret {
+            async fn main(#(#args),*) #ret {
                 #body
             }
 
@@ -72,7 +72,6 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
                 main().await
             })
         }
-
     };
 
     result.into()
@@ -106,12 +105,12 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     };
     let input = syn::parse_macro_input!(item as syn::ItemFn);
 
-    let ret = &input.decl.output;
-    let name = &input.ident;
+    let ret = &input.sig.output;
+    let name = &input.sig.ident;
     let body = &input.block;
     let attrs = &input.attrs;
 
-    if input.asyncness.is_none() {
+    if input.sig.asyncness.is_none() {
         let tokens = quote_spanned! { input.span() =>
           compile_error!("the async keyword is missing from the function declaration");
         };
@@ -159,12 +158,12 @@ pub fn bench(attr: TokenStream, item: TokenStream) -> TokenStream {
     };
     let input = syn::parse_macro_input!(item as syn::ItemFn);
 
-    let args = &input.decl.inputs;
-    let name = &input.ident;
+    let args = &input.sig.inputs;
+    let name = &input.sig.ident;
     let body = &input.block;
     let attrs = &input.attrs;
 
-    if input.asyncness.is_none() {
+    if input.sig.asyncness.is_none() {
         let tokens = quote_spanned! { input.span() =>
           compile_error!("the async keyword is missing from the function declaration");
         };
