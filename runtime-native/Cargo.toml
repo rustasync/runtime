@@ -13,7 +13,7 @@ categories = ["asynchronous", "network-programming", "filesystem", "concurrency"
 edition = "2018"
 
 [dependencies]
-futures-preview = { version = "0.3.0-alpha.16", features = ["compat"] }
+futures-preview = { version = "0.3.0-alpha.18", features = ["compat"] }
 runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.4" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
