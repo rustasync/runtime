@@ -22,7 +22,7 @@ native = []
 [dependencies]
 syn = { version = "0.15.33", features = ["full"] }
 proc-macro2 = { version = "0.4.29", features = ["nightly"] }
-quote = "0.6.12"
+quote = "1.0.2"
 
 [dev-dependencies]
 runtime-raw = { path = "../runtime-raw", version = "0.3.0-alpha.4" }
