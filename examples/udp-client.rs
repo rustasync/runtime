@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 //! UDP client.
 //!
 //! To start an echo server do:

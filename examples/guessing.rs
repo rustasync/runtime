@@ -7,8 +7,6 @@
 //! $ nc localhost 8080
 //! ```
 
-#![feature(async_await)]
-
 use futures::prelude::*;
 use rand::Rng;
 use runtime::net::{TcpListener, TcpStream};

@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 //! UDP echo server.
 //!
 //! To send messages do:

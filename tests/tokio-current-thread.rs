@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 #[runtime::test(runtime_tokio::TokioCurrentThread)]
 async fn spawn() {
     let handle = runtime::spawn(async {

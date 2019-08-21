@@ -16,8 +16,6 @@
 //! ## Examples
 //! __UDP Echo Server__
 //! ```no_run
-//! #![feature(async_await)]
-//!
 //! use runtime::net::UdpSocket;
 //!
 //! #[runtime::main]
@@ -85,7 +83,6 @@
 //! - [Runtime Tokio](https://docs.rs/runtime-tokio) provides a thread pool, bindings to the OS, and
 //!   a work-stealing scheduler.
 
-#![feature(async_await)]
 #![warn(
     missing_debug_implementations,
     missing_docs,

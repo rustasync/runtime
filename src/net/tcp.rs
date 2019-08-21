@@ -46,8 +46,6 @@ use futures::task::{Context, Poll};
 ///
 /// ## Examples
 /// ```no_run
-/// #![feature(async_await)]
-///
 /// use futures::prelude::*;
 /// use runtime::net::TcpStream;
 ///
@@ -85,7 +83,6 @@ impl TcpStream {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await)]
     /// use runtime::net::TcpStream;
     ///
     /// # async fn connect_localhost() -> std::io::Result<()> {
@@ -105,7 +102,6 @@ impl TcpStream {
     ///
     /// ## Examples
     /// ```no_run
-    /// #![feature(async_await)]
     /// use runtime::net::TcpStream;
     /// use std::net::{IpAddr, Ipv4Addr};
     ///
@@ -125,7 +121,6 @@ impl TcpStream {
     ///
     /// ## Examples
     /// ```no_run
-    /// #![feature(async_await)]
     /// use runtime::net::TcpStream;
     /// use std::net::{IpAddr, Ipv4Addr};
     ///
@@ -151,8 +146,6 @@ impl TcpStream {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await)]
-    ///
     /// use std::net::Shutdown;
     /// use runtime::net::TcpStream;
     ///
@@ -291,8 +284,6 @@ impl fmt::Debug for ConnectFuture {
 ///
 /// # Examples
 /// ```ignore
-/// #![feature(async_await)]
-///
 /// use futures::prelude::*;
 /// use runtime::net::TcpListener;
 ///
@@ -367,8 +358,6 @@ impl TcpListener {
     /// # Examples
     ///
     /// ```no_run
-    /// #![feature(async_await)]
-    ///
     /// use runtime::net::TcpListener;
     /// use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
     ///
@@ -397,8 +386,6 @@ impl TcpListener {
     /// ## Examples
     ///
     /// ```no_run
-    /// #![feature(async_await)]
-    ///
     /// use futures::prelude::*;
     /// use runtime::net::TcpListener;
     ///
@@ -430,8 +417,6 @@ impl TcpListener {
     /// ## Examples
     ///
     /// ```no_run
-    /// #![feature(async_await)]
-    ///
     /// use futures::prelude::*;
     /// use runtime::net::TcpListener;
     ///

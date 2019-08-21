@@ -16,7 +16,6 @@ impl Interval {
     ///
     /// ## Examples
     /// ```
-    /// # #![feature(async_await)]
     /// # use futures::prelude::*;
     /// use runtime::time::Interval;
     /// use std::time::{Duration, Instant};
