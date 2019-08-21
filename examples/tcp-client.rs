@@ -6,8 +6,6 @@
 //! $ cargo run --example tcp-echo
 //! ```
 
-#![feature(async_await)]
-
 use futures::prelude::*;
 use runtime::net::TcpStream;
 

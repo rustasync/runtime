@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 async fn say_hi() {
     println!("Hello world! 🤖");
 }

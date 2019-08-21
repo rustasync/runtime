@@ -52,8 +52,6 @@ impl<'a> Spawn for &'a Spawner {
 /// # Examples
 ///
 /// ```
-/// #![feature(async_await)]
-///
 /// #[runtime::main]
 /// async fn main() {
 ///     let handle = runtime::spawn(async {

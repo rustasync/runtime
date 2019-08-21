@@ -58,7 +58,6 @@ pub trait FutureExt: Future + Sized {
     ///
     /// # Examples
     /// ```
-    /// # #![feature(async_await)]
     /// use futures::prelude::*;
     /// use runtime::prelude::*;
     /// use std::time::{Duration, Instant};
@@ -107,7 +106,6 @@ pub trait FutureExt: Future + Sized {
     ///
     /// # Examples
     /// ```
-    /// # #![feature(async_await)]
     /// use futures::prelude::*;
     /// use runtime::prelude::*;
     /// use std::time::{Duration, Instant};
@@ -194,7 +192,6 @@ pub trait StreamExt: Stream + Sized {
     ///
     /// ## Examples
     /// ```
-    /// # #![feature(async_await)]
     /// # use futures::prelude::*;
     /// use runtime::time::{Interval, StreamExt as _};
     /// use std::time::{Duration, Instant};
@@ -279,7 +276,6 @@ pub trait AsyncReadExt: AsyncRead + Sized {
     /// ## Examples
     ///
     /// ```no_run
-    /// # #![feature(async_await)]
     /// # #[runtime::main]
     /// # async fn main () -> Result<(), Box<dyn std::error::Error + 'static + Send + Sync>> {
     /// use futures::prelude::*;

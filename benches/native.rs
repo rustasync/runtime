@@ -1,4 +1,4 @@
-#![feature(test, async_await)]
+#![feature(test)]
 #![warn(rust_2018_idioms)]
 
 extern crate test;

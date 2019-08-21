@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 use runtime_native::Native;
 
 #[runtime::test(Native)]

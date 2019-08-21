@@ -15,7 +15,6 @@
 //! ## Examples
 //! __Delay execution for three seconds__
 //! ```no_run
-//! # #![feature(async_await)]
 //! # #[runtime::main]
 //! # async fn main() {
 //! use runtime::time::Delay;
@@ -31,7 +30,6 @@
 //!
 //! __Emit an event every two seconds__
 //! ```no_run
-//! # #![feature(async_await)]
 //! # #[runtime::main]
 //! # async fn main() {
 //! # use futures::prelude::*;

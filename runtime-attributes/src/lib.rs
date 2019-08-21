@@ -3,7 +3,6 @@
 
 #![forbid(unsafe_code, future_incompatible, rust_2018_idioms)]
 #![deny(missing_debug_implementations, nonstandard_style)]
-#![feature(async_await)]
 #![recursion_limit = "512"]
 
 extern crate proc_macro;
@@ -17,8 +16,6 @@ use syn::spanned::Spanned;
 /// # Examples
 ///
 /// ```ignore
-/// #![feature(async_await)]
-///
 /// #[runtime::main]
 /// async fn main() -> std::io::Result<()> {
 ///     Ok(())
@@ -82,8 +79,6 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # Examples
 ///
 /// ```ignore
-/// #![feature(async_await)]
-///
 /// #[runtime::test]
 /// async fn main() -> std::io::Result<()> {
 ///     Ok(())
@@ -133,7 +128,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # Examples
 ///
 /// ```ignore
-/// #![feature(async_await, test)]
+/// #![feature(test)]
 ///
 /// extern crate test;
 ///

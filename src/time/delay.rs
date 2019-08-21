@@ -16,7 +16,6 @@ impl Delay {
     ///
     /// ## Examples
     /// ```
-    /// # #![feature(async_await)]
     /// use runtime::time::Delay;
     /// use std::time::{Duration, Instant};
     ///
@@ -38,7 +37,6 @@ impl Delay {
     ///
     /// ## Examples
     /// ```
-    /// # #![feature(async_await)]
     /// use runtime::time::Delay;
     /// use std::time::{Duration, Instant};
     ///
