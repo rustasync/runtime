@@ -12,6 +12,7 @@
 
 use futures::prelude::*;
 
+use async_datagram::AsyncDatagram;
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, ToSocketAddrs};
 use std::pin::Pin;
@@ -342,6 +343,29 @@ impl UdpSocket {
     /// [`join_multicast_v6`]: #method.join_multicast_v6
     pub fn leave_multicast_v6(&self, multiaddr: &Ipv6Addr, interface: u32) -> io::Result<()> {
         self.inner.leave_multicast_v6(multiaddr, interface)
+    }
+}
+
+impl AsyncDatagram for UdpSocket {
+    type Sender = SocketAddr;
+    type Receiver = SocketAddr;
+    type Err = io::Error;
+
+    fn poll_send_to(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &[u8],
+        receiver: &Self::Receiver,
+    ) -> Poll<Result<usize, Self::Err>> {
+        self.inner.as_mut().poll_send_to(cx, buf, receiver)
+    }
+
+    fn poll_recv_from(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &mut [u8],
+    ) -> Poll<Result<(usize, Self::Sender), Self::Err>> {
+        self.inner.as_mut().poll_recv_from(cx, buf)
     }
 }
 
