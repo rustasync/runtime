@@ -18,6 +18,19 @@ jobs:
           export RUST_BACKTRACE=1
           cargo test --all || exit
         displayName: "Run cargo test"
+  - job: wasm
+    pool:
+      vmImage: 'ubuntu-16.04'
+    displayName: "build --target wasm32-unknown-unknown"
+    steps:
+      - template: ci/install-rust.yml
+        parameters:
+          rust_version: nightly
+      - bash: |
+          export RUST_BACKTRACE=1
+          rustup target add wasm32-unknown-unknown
+          cargo build --target wasm32-unknown-unknown
+        displayName: "Run cargo build --target wasm32-unknown-unknown"
   - job: check_benches
     pool:
       vmImage: 'ubuntu-16.04'
