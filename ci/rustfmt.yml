@@ -8,7 +8,13 @@ jobs:
       parameters:
         rust_version: nightly
     - script: |
-        rustup component add rustfmt
+        if ! rustup component add rustfmt; then
+          target=`curl https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/rustfmt`;
+          echo "'rustfmt' is unavailable on the toolchain 'nightly', use the toolchain 'nightly-$target' instead";
+          rustup toolchain install nightly-$target;
+          rustup default nightly-$target;
+          rustup component add rustfmt;
+        fi
       displayName: Install rustfmt
     - script: |
         cargo fmt --all -- --check --unstable-features
