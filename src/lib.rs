@@ -83,6 +83,7 @@
 //! - [Runtime Tokio](https://docs.rs/runtime-tokio) provides a thread pool, bindings to the OS, and
 //!   a work-stealing scheduler.
 
+#![deny(unsafe_code)]
 #![warn(
     missing_debug_implementations,
     missing_docs,

@@ -21,7 +21,7 @@ impl runtime_raw::UdpSocket for UdpSocket {
         buf: &[u8],
         receiver: &SocketAddr,
     ) -> Poll<io::Result<usize>> {
-        let socket = unsafe { &mut self.get_unchecked_mut().tokio_socket };
+        let socket = &mut self.get_mut().tokio_socket;
         match socket.poll_send_to(&buf, &receiver)? {
             futures01::Async::Ready(size) => Poll::Ready(Ok(size)),
             futures01::Async::NotReady => Poll::Pending,
@@ -33,7 +33,7 @@ impl runtime_raw::UdpSocket for UdpSocket {
         _cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<io::Result<(usize, SocketAddr)>> {
-        let socket = unsafe { &mut self.get_unchecked_mut().tokio_socket };
+        let socket = &mut self.get_mut().tokio_socket;
         match socket.poll_recv_from(buf)? {
             futures01::Async::Ready((size, addr)) => Poll::Ready(Ok((size, addr))),
             futures01::Async::NotReady => Poll::Pending,

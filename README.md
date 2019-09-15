@@ -213,7 +213,7 @@ Getting things right takes time. But if you'd like to move the state of async fo
 you to get involved!
 
 ## Safety
-This crate uses `unsafe` in a few places to construct pin projections.
+This crate uses ``#![deny(unsafe_code)]`` to ensure everything is implemented in 100% Safe Rust.
 
 ## Contributing
 Want to join us? Check out our [The "Contributing" section of the
