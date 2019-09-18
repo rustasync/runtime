@@ -98,7 +98,7 @@ impl runtime_raw::TcpListener for TcpListener {
         self: Pin<&mut Self>,
         _cx: &mut Context<'_>,
     ) -> Poll<io::Result<Pin<Box<dyn runtime_raw::TcpStream>>>> {
-        let listener = unsafe { &mut self.get_unchecked_mut().tokio_listener };
+        let listener = &mut self.get_mut().tokio_listener;
         match listener.poll_accept()? {
             futures01::Async::Ready((tokio_stream, _)) => {
                 let stream = Box::pin(TcpStream { tokio_stream });
