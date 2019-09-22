@@ -26,7 +26,7 @@ pub struct Timeout<F: Future> {
 impl<F: Future> Future for Timeout<F> {
     type Output = Result<F::Output, io::Error>;
 
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.project();
 
         if let Poll::Ready(t) = this.future.poll(cx) {
@@ -148,7 +148,7 @@ pub struct TimeoutStream<S: Stream> {
 impl<S: Stream> Stream for TimeoutStream<S> {
     type Item = Result<S::Item, io::Error>;
 
-    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let mut this = self.project();
 
         if let Poll::Ready(s) = this.stream.as_mut().poll_next(cx) {
@@ -225,7 +225,7 @@ pub struct TimeoutAsyncRead<S: AsyncRead> {
 
 impl<S: AsyncRead> AsyncRead for TimeoutAsyncRead<S> {
     fn poll_read(
-        mut self: Pin<&mut Self>,
+        self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &mut [u8],
     ) -> Poll<Result<usize, io::Error>> {
