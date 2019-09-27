@@ -26,4 +26,4 @@ futures-timer = "0.4.0"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 futures01 = { package = "futures", version = "0.1" }
 wasm-bindgen = "0.2.43"
-wasm-bindgen-futures = "0.3.20"
+wasm-bindgen-futures = "0.4.1"
