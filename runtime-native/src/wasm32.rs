@@ -1,6 +1,4 @@
-use futures::prelude::*;
 use futures::{future::BoxFuture, task::SpawnError};
-// use futures::compat::*;
 
 use std::io;
 use std::net::SocketAddr;
@@ -13,7 +11,6 @@ pub struct Native;
 
 impl runtime_raw::Runtime for Native {
     fn spawn_boxed(&self, fut: BoxFuture<'static, ()>) -> Result<(), SpawnError> {
-        let fut = fut.unit_error().compat();
         wasm_bindgen_futures::spawn_local(fut);
         Ok(())
     }
