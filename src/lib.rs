@@ -109,11 +109,11 @@ pub mod time;
 /// use runtime::prelude::*;
 /// ```
 pub mod prelude {
-    #[doc(inline)]
+    #[doc(no_inline)]
     pub use super::time::AsyncReadExt as _;
-    #[doc(inline)]
+    #[doc(no_inline)]
     pub use super::time::FutureExt as _;
-    #[doc(inline)]
+    #[doc(no_inline)]
     pub use super::time::StreamExt as _;
 }
 
