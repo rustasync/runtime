@@ -21,7 +21,7 @@ native = []
 
 [dependencies]
 syn = { version = "1.0.1", features = ["full"] }
-proc-macro2 = { version = "1.0.0", features = ["nightly"] }
+proc-macro2 = "1.0.0"
 quote = "1.0.0"
 
 [dev-dependencies]
