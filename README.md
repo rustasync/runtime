@@ -50,6 +50,14 @@
   <sub>Built with ⛵ by <a href="https://github.com/rustasync">The Rust Async Ecosystem WG</a>
 </div>
 
+## ⚠️ Deprecation notice  ⚠️
+Runtime is no longer actively developed. The team behind Runtime has moved on to
+building [async-std](https://async.rs/): an asynchronous version of the Rust
+stdlib.
+
+If you're looking for an asynchronous runtime please consider using
+[async-std](https://docs.rs/async-std) or [tokio](https://docs.rs/tokio).
+
 ## About
 Runtime is what we imagine async APIs could look like if they were part of stdlib. We want async
 Rust to be an experience that mirrors the quality of the standard lib. We believe that in order for
